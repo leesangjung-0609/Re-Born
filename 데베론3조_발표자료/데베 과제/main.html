@@ -108,7 +108,7 @@
     .submenu {
   position: absolute;
   top: 100%; /* 35px 대신 부모 바로 아래 */
-  left: 0;
+  right: 0;
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -265,24 +265,25 @@
     </div>
 
     <ul class="menu">
-      <li>
-        <a href="#">로그인/회원가입</a>
-        <ul class="submenu">
-          <li><a href="login.html">로그인</a></li>
-          <li><a href="signup.html">회원가입</a></li>
-        </ul>
-      </li>
+        <li>
+            <a href="#">마이 페이지</a>
+            <ul class="submenu" style="left: -30px;">
+            <li><a href="my_info.html">내 정보</a></li>
+            <li><a href="goods_reg.html">등록한 상품 목록</a></li>
+            <li><a href="rating.html">후기 / 평점</a></li>
+            <li><a href="wishlist.html">찜 목록</a></li>
+            <li><a href="withdraw.html">탈퇴하기</a></li>
+            </ul>
+        </li>
 
-      <li>
-        <a href="#">마이 페이지</a>
-        <ul class="submenu">
-          <li><a href="my_info.html">내 정보</a></li>
-          <li><a href="goods_reg.html">등록한 상품 목록</a></li>
-          <li><a href="rating.html">후기 / 평점</a></li>
-          <li><a href="wishlist.html">찜 목록</a></li>
-          <li><a href="withdraw.html">탈퇴하기</a></li>
-        </ul>
-      </li>
+
+        <li>
+            <a href="#">로그인/회원가입</a>
+            <ul class="submenu">
+            <li><a href="login.html">로그인</a></li>
+            <li><a href="signup.html">회원가입</a></li>
+            </ul>
+        </li>
     </ul>
   </nav>
 
