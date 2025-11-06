@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>중고거래 사이트 </title>
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    
+  </style>
+</head>
+
+<body>
+  <nav>
+        <div class="logo">
+            <a href="main.html" style="text-decoration:none; color:inherit;">중고마켓</a>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" placeholder="상품명, 카테고리 검색..." />
+        </div>
+
+        <ul class="menu">
+            <li>
+                <a href="#">로그인/회원</a>
+                <ul class="submenu">
+                    <li><a href="login.html">로그인</a></li>
+                    <li><a href="signup.html">회원가입</a></li>
+                </ul>
+            </li>
+
+            <li>
+                <a href="#">마이 페이지</a>
+                <ul class="submenu">
+                    <li><a href="my_info.html">내 정보</a></li>
+                    <li><a href="goods_reg.html">등록한 상품 목록</a></li>
+                    <li><a href="rating.html">평점</a></li>
+                    <li><a href="wishlist.html">찜 목록</a></li>
+                    <li><a href="javascript:void(0);" onclick = "openWithdrawPopup()">탈퇴하기</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+
+  <!-- Changed: 카테고리 사이드바 -->
+  <aside class="category-sidebar"> <!-- Changed -->
+    <h3>카테고리</h3>
+    <ul>
+      <li>옷</li>
+      <li>가전</li>
+      <li>가구</li>
+      <li>생활/주방</li>
+      <li>취미/게임</li>
+      <li>기타</li>
+    </ul>
+  </aside>
+
+  <!-- 상품 목록 -->
+  <div class="product-container">
+    <div class="product-item">
+      <a href="product_detail.html?id=1" style="text-decoration:none; color:inherit;">
+        <img src="https://via.placeholder.com/200">
+        <div class="name">상품1</div>
+        <div class="price">10,000원</div>
+      </a>
+    </div>
+
+    <div class="product-item"><img src="https://via.placeholder.com/200">
+      <div class="name">상품2</div>
+      <div class="price">12,000원</div>
+    </div>
+
+    <div class="product-item"><img src="https://via.placeholder.com/200">
+      <div class="name">상품3</div>
+      <div class="price">8,000원</div>
+    </div>
+
+    <div class="product-item"><img src="https://via.placeholder.com/200">
+      <div class="name">상품4</div>
+      <div class="price">15,000원</div>
+    </div>
+
+    <div class="product-item"><img src="https://via.placeholder.com/200">
+      <div class="name">상품5</div>
+      <div class="price">20,000원</div>
+    </div>
+  </div>
+  <script>
+    function openWithdrawPopup() {
+      const popupWidth = 500;
+      const popupHeight = 650;
+      const left = (window.screen.width / 2) - (popupWidth / 2);
+      const top = (window.screen.height / 2) - (popupHeight / 2);
+      const options = `width=${popupWidth},height=${popupHeight},left=${left},top=${top},status=no,menubar=no,toolbar=no,resizable=no`;
+      window.open("withdraw.html", "withdrawPopup", options);
+    }
+  </script>
+</body>
+
+</html>

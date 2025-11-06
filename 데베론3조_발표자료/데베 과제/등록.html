@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>내 상품 관리</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Changed - 드롭다운 메뉴 포함 -->
+  <nav>
+    <div class="logo">중고마켓</div>
+
+    <div class="search-bar">
+      <input type="text" placeholder="상품명, 카테고리 검색..." />
+    </div>
+
+    <ul class="menu">
+
+      <li>
+        <a href="#">로그인/회원</a>
+        <ul class="submenu">
+            <li><a href="login.html">로그인</a></li>
+            <li><a href="signup.html">회원가입</a></li>
+        </ul>
+      </li>
+
+      <li>
+        <a href="#">마이 페이지</a>
+        <ul class="submenu">
+            <li><a href="my_info.html">내 정보</a></li>
+            <li><a href="등록.html">등록한 상품 목록</a></li>
+            <li><a href="rating.html">후기/평점</a></li>
+            <li><a href="wishlist.html">찜 목록</a></li>
+            <li><a href="javascript:void(0);" onclick="openWithdrawPopup()">탈퇴하기</a></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <h2>내 상품 목록</h2>
+    <div class="product-list" id="productList"></div>
+    <button class="add-btn" onclick="addProduct()">새 상품 등록</button>
+  </div>
+
+  <script>
+    // 상품 임시 데이터
+    let products = [
+      { id: 1, name: "나이키 신발", desc: "거의 새 상품이에요.", price: 45000, img: "https://via.placeholder.com/300x180?text=나이키+신발" },
+      { id: 2, name: "아이폰 13 미니", desc: "생활기스 조금 있음.", price: 620000, img: "https://via.placeholder.com/300x180?text=아이폰+13+미니" },
+      { id: 3, name: "책상", desc: "튼튼하고 깨끗함.", price: 30000, img: "https://via.placeholder.com/300x180?text=책상" },
+      { id: 4, name: "패딩 점퍼", desc: "겨울 필수템!", price: 85000, img: "https://via.placeholder.com/300x180?text=패딩+점퍼" },
+    ];
+
+    function renderProducts() {
+      const list = document.getElementById('productList');
+      list.innerHTML = '';
+
+      products.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+          <img src="${p.img}" alt="${p.name}" class="product-img" />
+          <div class="product-info">
+            <div class="product-name">${p.name}</div>
+            <div class="product-desc">${p.desc}</div>
+            <div class="product-price">${p.price.toLocaleString()}원</div>
+          </div>
+          <div class="btn-group">
+            <button class="edit-btn" onclick="editProduct(${p.id})">수정</button>
+            <button class="delete-btn" onclick="deleteProduct(${p.id})">삭제</button>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    function deleteProduct(id) {
+      if (confirm("정말 삭제하시겠습니까?")) {
+        products = products.filter(p => p.id !== id);
+        renderProducts();
+      }
+    }
+
+    function editProduct(id) {
+      const p = products.find(p => p.id === id);
+      const newName = prompt("상품명 수정:", p.name);
+      const newDesc = prompt("설명 수정:", p.desc);
+      const newPrice = prompt("가격 수정:", p.price);
+      const newImg = prompt("이미지 URL 수정:", p.img);
+      if (newName && newPrice) {
+        p.name = newName;
+        p.desc = newDesc;
+        p.price = parseInt(newPrice);
+        p.img = newImg || p.img;
+        renderProducts();
+      }
+    }
+
+    function addProduct() {
+      const name = prompt("새 상품명 입력:");
+      const desc = prompt("상품 설명 입력:");
+      const price = prompt("가격 입력:");
+      const img = prompt("이미지 URL 입력 (없으면 기본 이미지):") || "https://via.placeholder.com/300x180?text=상품이미지";
+      if (name && price) {
+        const newItem = { id: Date.now(), name, desc, price: parseInt(price), img };
+        products.push(newItem);
+        renderProducts();
+      }
+    }
+
+    renderProducts();
+  </script>
+</body>
+</html>
