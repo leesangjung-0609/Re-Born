@@ -61,7 +61,7 @@ nav {
 /* 검색창 + X버튼 감싸는 컨테이너 */
 .search-container {
   position: relative;
-  width: 300px;
+  width: 500px;
 }
 
 .search-bar input {
@@ -739,4 +739,27 @@ main.container {
   text-decoration: none;
   color: inherit;
   display: block;
+}
+
+.profile-container {
+  display: flex; /* 👈 핵심: 자식 요소를 가로로 배치 */
+  align-items: center; /* 👈 세로 중앙 정렬 */
+  gap: 24px; /* 👈 이미지와 정보 사이의 간격 */
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  border: 1px solid #eee;
+}
+
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%; /* 👈 원형 프로필 사진 */
+  object-fit: cover;
+  flex-shrink: 0; /* 👈 화면이 줄어도 찌그러지지 않게 함 */
+}
+
+/* 'info-display'가 남은 공간을 채우도록 함 */
+.profile-container .info-display {
+  flex-grow: 1;
 }
