@@ -5,181 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>로그인 / 비밀번호 찾기 (팝업)</title>
+  <link href="style.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=SUIT:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    /* 기본 스타일 유지 */
-    body {
-      font-family: 'SUIT', sans-serif;
-      background-color: #f8f9fa;
-      margin: 0;
-      padding: 0;
-    }
-
-    .top-bar {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: #ffffff;
-      color: #333;
-      padding: 12px 20px;
-      border-bottom: 1px solid #e0e0e0;
-      position: fixed;
-      top: 0;
-      width: 100%;
-      z-index: 1000;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .logo {
-      font-size: 1.5rem;
-      font-weight: 700;
-      cursor: pointer;
-      color: #2b6cb0;
-      text-decoration: none;
-    }
-
-    .container {
-      max-width: 400px;
-      margin: 120px auto 60px auto;
-      background: #fff;
-      padding: 30px 40px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    h2 {
-      text-align: center;
-      color: #2c3e50;
-    }
-
-    label {
-      display: block;
-      margin: 15px 0 5px;
-      font-weight: 500;
-      color: #333;
-    }
-
-    input[type="text"],
-    input[type="password"],
-    input[type="email"] {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      box-sizing: border-box;
-      font-size: 15px;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      background-color: #2b6cb0;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      margin-top: 20px;
-      transition: background-color 0.3s;
-    }
-
-    button:hover {
-      background-color: #22588f;
-    }
-
-    .toggle {
-      text-align: center;
-      margin-top: 25px;
-      color: #555;
-      font-size: 15px;
-    }
-
-    .toggle span,
-    .toggle a span {
-      color: #2b6cb0;
-      cursor: pointer;
-      font-weight: 600;
-      text-decoration: none;
-    }
-
-    .error-message {
-      color: #e74c3c;
-      text-align: center;
-      margin-top: 15px;
-      font-weight: bold;
-    }
-
-    .success-message {
-      color: #27ae60;
-      text-align: center;
-      margin-top: 15px;
-      font-weight: bold;
-    }
-
-    .id-display {
-      color: #2b6cb0;
-      text-align: center;
-      margin-top: 15px;
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .content-hidden {
-      display: none;
-    }
-
-    /* 내부 콘텐츠 숨김용 */
-
-    /* 팝업 (모달) 스타일 */
-    .modal {
-      display: none;
-      /* 기본 숨김 */
-      position: fixed;
-      z-index: 2000;
-      /* top-bar보다 위 */
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0, 0, 0, 0.4);
-      /* 배경을 어둡게 */
-      padding-top: 60px;
-    }
-
-    .modal-content {
-      background-color: #fefefe;
-      margin: 10% auto;
-      /* 상단에서 10%, 중앙 정렬 */
-      padding: 30px 40px;
-      border: 1px solid #888;
-      width: 80%;
-      /* 모바일 환경 고려 */
-      max-width: 400px;
-      /* 최대 너비 */
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-      position: relative;
-    }
-
-    .close-btn {
-      color: #aaa;
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
-      position: absolute;
-      top: 10px;
-      right: 20px;
-      text-decoration: none;
-    }
-
-    .close-btn:hover,
-    .close-btn:focus {
-      color: #333;
-      text-decoration: none;
-      cursor: pointer;
-    }
-  </style>
 </head>
 
 <body>
@@ -188,7 +15,7 @@
     <a href="main.html" class="logo">Re:Born</a>
   </div>
 
-  <div class="container" id="loginForm">
+  <div class="login-container" id="loginForm">
     <h2>로그인</h2>
     <label for="loginId">아이디</label>
     <input type="text" id="loginId" placeholder="아이디 입력">
@@ -213,7 +40,6 @@
         <button onclick="findIdByEmail()">아이디 찾기</button>
         <div id="findIdMsg" class="error-message content-hidden"></div>
       </div>
-
       <div id="findIdResult" class="content-hidden">
         <p>고객님의 아이디는 다음과 같습니다.</p>
         <div id="displayId" class="id-display"></div>
@@ -249,198 +75,201 @@
     </div>
   </div>
 
-
   <script>
-const ADMIN_ID = "admin";
-const ADMIN_PW = "1234";
+    const ADMIN_ID = "admin";
+    const ADMIN_PW = "1234";
 
-const loginForm = document.getElementById('loginForm');
-const findIdMsg = document.getElementById('findIdMsg');
-const findIdStep1 = document.getElementById('findIdStep1');
-const findIdResult = document.getElementById('findIdResult');
-const displayId = document.getElementById('displayId');
-const findPwMsg = document.getElementById('findPwMsg');
-const resetMsg = document.getElementById('resetMsg');
-let currentUser = null;
+    const loginForm = document.getElementById('loginForm');
+    const findIdMsg = document.getElementById('findIdMsg');
+    const findIdStep1 = document.getElementById('findIdStep1');
+    const findIdResult = document.getElementById('findIdResult');
+    const displayId = document.getElementById('displayId');
+    const findPwMsg = document.getElementById('findPwMsg');
+    const resetMsg = document.getElementById('resetMsg');
+    let currentUser = null;
 
-const findIdModal = document.getElementById('findIdModal');
-const findPwModal = document.getElementById('findPwModal');
-const resetPwModal = document.getElementById('resetPwModal');
+    const findIdModal = document.getElementById('findIdModal');
+    const findPwModal = document.getElementById('findPwModal');
+    const resetPwModal = document.getElementById('resetPwModal');
 
-function openModal(modalId) {
-  findIdModal.style.display = 'none';
-  findPwModal.style.display = 'none';
-  resetPwModal.style.display = 'none';
+    function openModal(modalId) {
+      findIdModal.style.display = 'none';
+      findPwModal.style.display = 'none';
+      resetPwModal.style.display = 'none';
 
-  document.getElementById(modalId).style.display = 'block';
+      document.getElementById(modalId).style.display = 'block';
 
-  if (modalId === 'findIdModal') {
-    findIdStep1.classList.remove('content-hidden');
-    findIdResult.classList.add('content-hidden');
-    findIdMsg.classList.add('content-hidden');
-    document.getElementById('findIdEmail').value = '';
-  }
+      if (modalId === 'findIdModal') {
+        findIdStep1.classList.remove('content-hidden');
+        findIdResult.classList.add('content-hidden');
+        findIdMsg.classList.add('content-hidden');
+        document.getElementById('findIdEmail').value = '';
+      }
 
-  if (modalId === 'findPwModal') {
-    findPwMsg.classList.add('content-hidden');
-    document.getElementById('findPwEmail').value = '';
-  }
+      if (modalId === 'findPwModal') {
+        findPwMsg.classList.add('content-hidden');
+        document.getElementById('findPwEmail').value = '';
+      }
 
-  if (modalId === 'resetPwModal') {
-    resetMsg.textContent = '';
-    document.getElementById('newPw').value = '';
-    document.getElementById('newPwConfirm').value = '';
-  }
-}
+      if (modalId === 'resetPwModal') {
+        resetMsg.textContent = '';
+        document.getElementById('newPw').value = '';
+        document.getElementById('newPwConfirm').value = '';
+      }
+    }
 
-function closeModal(modalId) {
-  document.getElementById(modalId).style.display = 'none';
-}
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+    }
 
-function login() {
-    const id = document.getElementById('loginId').value;
-    const pw = document.getElementById('loginPw').value;
-    
-    const ADMIN_ID = "admin"; // login.html 내에 정의되어 있다고 가정
-    const ADMIN_PW = "1234";  // login.html 내에 정의되어 있다고 가정
+    function login() {
+      const id = document.getElementById('loginId').value;
+      const pw = document.getElementById('loginPw').value;
 
-    // 1. 관리자 계정 확인
-    if (id === ADMIN_ID && pw === ADMIN_PW) {
+      const ADMIN_ID = "admin"; // login.html 내에 정의되어 있다고 가정
+      const ADMIN_PW = "1234";  // login.html 내에 정의되어 있다고 가정
+
+      // 1. 관리자 계정 확인
+      if (id === ADMIN_ID && pw === ADMIN_PW) {
         // ⭐️⭐️⭐️ 핵심: Local Storage에 로그인 상태와 ID 저장 ⭐️⭐️⭐️
         localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('loggedInUser', id); 
-        
+        localStorage.setItem('loggedInUser', id);
+
         alert(`관리자 ${id}님, 환영합니다!`);
         window.location.href = "main.html"; // 메인 페이지로 이동
         return;
-    }
+      }
 
-    // 2. 일반 사용자 계정 확인 (Local Storage 이용)
-    const userData = JSON.parse(localStorage.getItem('user'));
-    
-    if (userData && id === userData.id && pw === userData.pw) {
+      // 2. 일반 사용자 계정 확인 (Local Storage 이용)
+      const userData = JSON.parse(localStorage.getItem('user'));
+
+      if (userData && id === userData.id && pw === userData.pw) {
         // ⭐️⭐️⭐️ 핵심: Local Storage에 로그인 상태와 ID 저장 ⭐️⭐️⭐️
         localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('loggedInUser', id); 
-        
+        localStorage.setItem('loggedInUser', id);
+
         alert(`환영합니다 ${id}님!`);
         window.location.href = "main.html"; // 메인 페이지로 이동
-    } else {
+      } else {
         alert("아이디 또는 비밀번호가 올바르지 않습니다.");
         // 실패 시 혹시 모를 이전 정보 삭제
         localStorage.removeItem('isLoggedIn');
         localStorage.removeItem('loggedInUser');
+      }
     }
-}
 
-function findIdByEmail() {
-  const email = document.getElementById('findIdEmail').value;
-  const userData = JSON.parse(localStorage.getItem('user'));
+    function findIdByEmail() {
+      const email = document.getElementById('findIdEmail').value;
+      const userData = JSON.parse(localStorage.getItem('user'));
 
-  findIdMsg.classList.add('content-hidden');
+      findIdMsg.classList.add('content-hidden');
 
-  if (!email) {
-    findIdMsg.textContent = "이메일을 입력해주세요!";
-    findIdMsg.classList.remove('content-hidden');
-    return;
-  }
+      if (!email) {
+        findIdMsg.textContent = "이메일을 입력해주세요!";
+        findIdMsg.classList.remove('content-hidden');
+        return;
+      }
 
-  if (userData && userData.email === email) {
-    displayId.textContent = userData.id;
-    findIdStep1.classList.add('content-hidden');
-    findIdResult.classList.remove('content-hidden');
-  } else {
-    findIdMsg.textContent = "등록된 이메일이 없거나, 가입 정보가 일치하지 않습니다.";
-    findIdMsg.classList.remove('content-hidden');
-  }
-}
+      if (userData && userData.email === email) {
+        displayId.textContent = userData.id;
+        findIdStep1.classList.add('content-hidden');
+        findIdResult.classList.remove('content-hidden');
+      } else {
+        findIdMsg.textContent = "등록된 이메일이 없거나, 가입 정보가 일치하지 않습니다.";
+        findIdMsg.classList.remove('content-hidden');
+      }
+    }
 
-function checkEmailForPw() {
-  const email = document.getElementById('findPwEmail').value;
-  const userData = JSON.parse(localStorage.getItem('user'));
+    function checkEmailForPw() {
+      const email = document.getElementById('findPwEmail').value;
+      const userData = JSON.parse(localStorage.getItem('user'));
 
-  findPwMsg.classList.add('content-hidden');
+      findPwMsg.classList.add('content-hidden');
 
-  if (!email) {
-    findPwMsg.textContent = "이메일을 입력해주세요!";
-    findPwMsg.classList.remove('content-hidden');
-    return;
-  }
+      if (!email) {
+        findPwMsg.textContent = "이메일을 입력해주세요!";
+        findPwMsg.classList.remove('content-hidden');
+        return;
+      }
 
-  if ('ntm' === email) {
-    currentUser = userData;
-    closeModal('findPwModal');
-    openModal('resetPwModal');
-  } else {
-    findPwMsg.textContent = "등록된 이메일이 없습니다.";
-    findPwMsg.classList.remove('content-hidden');
-  }
-}
+      if (userData && userData.pw === email) {
+        currentUser = userData;
+        closeModal('findPwModal');
+        openModal('resetPwModal');
+      } else {
+        findPwMsg.textContent = "등록된 이메일이 없습니다.";
+        findPwMsg.classList.remove('content-hidden');
+      }
+    }
 
-function resetPassword() {
-  // 1. 모든 입력값 가져오기
-  const oldPw = document.getElementById('oldPw').value;
-  const newPw = document.getElementById('newPw').value;
-  const confirmPw = document.getElementById('newPwConfirm').value;
+    function resetPassword() {
+      // 1. 모든 입력값 가져오기
+      const oldPw = document.getElementById('oldPw').value;
+      const newPw = document.getElementById('newPw').value;
+      const confirmPw = document.getElementById('newPwConfirm').value;
 
-  // 2. 메시지 초기화
-  resetMsg.textContent = '';
-  resetMsg.className = ""; // 이전 스타일 클래스 제거
+      // 2. 메시지 초기화
+      resetMsg.textContent = '';
+      resetMsg.className = ""; // 이전 스타일 클래스 제거
 
-  // 3. (수정) 모든 칸이 입력되었는지 확인 (oldPw 포함)
-  if (!oldPw || !newPw || !confirmPw) {
-    resetMsg.textContent = "모든 칸을 입력해주세요!";
-    resetMsg.className = "error-message";
-    return;
-  }
+      // 3. (수정) 모든 칸이 입력되었는지 확인 (oldPw 포함)
+      if (!oldPw || !newPw || !confirmPw) {
+        resetMsg.textContent = "모든 칸을 입력해주세요!";
+        resetMsg.className = "error-message";
+        return;
+      }
 
-  // 4. (추가) currentUser 객체가 유효한지 확인 (이메일 인증을 통과했는지)
-  if (!currentUser) {
-    resetMsg.textContent = "사용자 정보가 유실되었습니다. 다시 시도해주세요.";
-    resetMsg.className = "error-message";
-    return;
-  }
+      // 4. (추가) currentUser 객체가 유효한지 확인 (이메일 인증을 통과했는지)
+      if (!currentUser) {
+        resetMsg.textContent = "사용자 정보가 유실되었습니다. 다시 시도해주세요.";
+        resetMsg.className = "error-message";
+        return;
+      }
 
-  // 5. (⭐️요청사항 추가⭐️) 현재 비밀번호가 일치하는지 확인
-  if (oldPw !== currentUser.pw) {
-    resetMsg.textContent = "현재 비밀번호가 틀렸습니다.";
-    resetMsg.className = "error-message";
-    return;
-  }
+      // 5. (⭐️요청사항 추가⭐️) 현재 비밀번호가 일치하는지 확인
+      if (oldPw !== currentUser.pw) {
+        resetMsg.textContent = "현재 비밀번호가 틀렸습니다.";
+        resetMsg.className = "error-message";
+        return;
+      }
 
-  // 6. (기존 로직) 새 비밀번호와 확인이 일치하는지 확인
-  if (newPw !== confirmPw) {
-    resetMsg.textContent = "새 비밀번호가 일치하지 않습니다!";
-    resetMsg.className = "error-message";
-    return;
-  }
+      // 6. (기존 로직) 새 비밀번호와 확인이 일치하는지 확인
+      if (newPw !== confirmPw) {
+        resetMsg.textContent = "새 비밀번호가 일치하지 않습니다!";
+        resetMsg.className = "error-message";
+        return;
+      }
 
-  // 7. (추가) 현재 비밀번호와 새 비밀번호가 같은지 확인
-  if (oldPw === newPw) {
-    resetMsg.textContent = "현재 비밀번호와 동일한 비밀번호로 변경할 수 없습니다.";
-    resetMsg.className = "error-message";
-    return;
-  }
+      // 7. (추가) 현재 비밀번호와 새 비밀번호가 같은지 확인
+      if (oldPw === newPw) {
+        resetMsg.textContent = "현재 비밀번호와 동일한 비밀번호로 변경할 수 없습니다.";
+        resetMsg.className = "error-message";
+        return;
+      }
 
-  // 8. (기존 로직) LocalStorage에서 정보 업데이트
-  let userData = JSON.parse(localStorage.getItem('user'));
+      // 8. (기존 로직) LocalStorage에서 정보 업데이트
+      let userData = JSON.parse(localStorage.getItem('user'));
 
-  if (userData && currentUser && userData.id === currentUser.id) {
-    userData.pw = newPw; // 새 비밀번호로 업데이트
-    localStorage.setItem('user', JSON.stringify(userData)); // 저장
+      if (userData && currentUser && userData.id === currentUser.id) {
+        userData.pw = newPw; // 새 비밀번호로 업데이트
+        localStorage.setItem('user', JSON.stringify(userData)); // 저장
 
-    resetMsg.textContent = "✅ 비밀번호가 성공적으로 변경되었습니다!";
-    resetMsg.className = "success-message";
+        resetMsg.textContent = "✅ 비밀번호가 성공적으로 변경되었습니다!";
+        resetMsg.className = "success-message";
 
-    // 2초 후 모달 닫기
-    setTimeout(() => closeModal('resetPwModal'), 2000);
-  } else {
-    // 이메일 인증(currentUser)은 통과했으나, 중간에 localStorage 정보가 바뀐 경우
-    resetMsg.textContent = "사용자 정보를 찾을 수 없습니다.";
-    resetMsg.className = "error-message";
-  }
-}
-</script>
+        // 2초 후 모달 닫기
+        setTimeout(() => closeModal('resetPwModal'), 2000);
+      } else {
+        // 이메일 인증(currentUser)은 통과했으나, 중간에 localStorage 정보가 바뀐 경우
+        resetMsg.textContent = "사용자 정보를 찾을 수 없습니다.";
+        resetMsg.className = "error-message";
+      }
+    }
+
+    // ... (다른 스크립트 함수들) ...
+    // login(), openModal(), closeModal(), findIdByEmail(), checkEmailForPw()
+
+  </script>
 
 </body>
 
