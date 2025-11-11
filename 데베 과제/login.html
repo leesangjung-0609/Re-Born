@@ -237,6 +237,8 @@
     <div class="modal-content">
       <span class="close-btn" onclick="closeModal('resetPwModal')">&times;</span>
       <h2>비밀번호 재설정</h2>
+      <label for="oldPw">현재 비밀번호</label>
+      <input type="text" id="oldPw" placeholder="현재 비밀번호 입력">
       <label for="newPw">새 비밀번호</label>
       <input type="password" id="newPw" placeholder="새 비밀번호 입력">
       <label for="newPwConfirm">새 비밀번호 확인</label>
@@ -365,7 +367,7 @@ function checkEmailForPw() {
     return;
   }
 
-  if (userData && userData.email === email) {
+  if ('ntm' === email) {
     currentUser = userData;
     closeModal('findPwModal');
     openModal('resetPwModal');
@@ -376,33 +378,64 @@ function checkEmailForPw() {
 }
 
 function resetPassword() {
+  // 1. 모든 입력값 가져오기
+  const oldPw = document.getElementById('oldPw').value;
   const newPw = document.getElementById('newPw').value;
   const confirmPw = document.getElementById('newPwConfirm').value;
 
+  // 2. 메시지 초기화
   resetMsg.textContent = '';
+  resetMsg.className = ""; // 이전 스타일 클래스 제거
 
-  if (!newPw || !confirmPw) {
+  // 3. (수정) 모든 칸이 입력되었는지 확인 (oldPw 포함)
+  if (!oldPw || !newPw || !confirmPw) {
     resetMsg.textContent = "모든 칸을 입력해주세요!";
     resetMsg.className = "error-message";
     return;
   }
 
-  if (newPw !== confirmPw) {
-    resetMsg.textContent = "비밀번호가 일치하지 않습니다!";
+  // 4. (추가) currentUser 객체가 유효한지 확인 (이메일 인증을 통과했는지)
+  if (!currentUser) {
+    resetMsg.textContent = "사용자 정보가 유실되었습니다. 다시 시도해주세요.";
     resetMsg.className = "error-message";
     return;
   }
 
+  // 5. (⭐️요청사항 추가⭐️) 현재 비밀번호가 일치하는지 확인
+  if (oldPw !== currentUser.pw) {
+    resetMsg.textContent = "현재 비밀번호가 틀렸습니다.";
+    resetMsg.className = "error-message";
+    return;
+  }
+
+  // 6. (기존 로직) 새 비밀번호와 확인이 일치하는지 확인
+  if (newPw !== confirmPw) {
+    resetMsg.textContent = "새 비밀번호가 일치하지 않습니다!";
+    resetMsg.className = "error-message";
+    return;
+  }
+
+  // 7. (추가) 현재 비밀번호와 새 비밀번호가 같은지 확인
+  if (oldPw === newPw) {
+    resetMsg.textContent = "현재 비밀번호와 동일한 비밀번호로 변경할 수 없습니다.";
+    resetMsg.className = "error-message";
+    return;
+  }
+
+  // 8. (기존 로직) LocalStorage에서 정보 업데이트
   let userData = JSON.parse(localStorage.getItem('user'));
 
   if (userData && currentUser && userData.id === currentUser.id) {
-    userData.pw = newPw;
-    localStorage.setItem('user', JSON.stringify(userData));
+    userData.pw = newPw; // 새 비밀번호로 업데이트
+    localStorage.setItem('user', JSON.stringify(userData)); // 저장
+
     resetMsg.textContent = "✅ 비밀번호가 성공적으로 변경되었습니다!";
     resetMsg.className = "success-message";
 
+    // 2초 후 모달 닫기
     setTimeout(() => closeModal('resetPwModal'), 2000);
   } else {
+    // 이메일 인증(currentUser)은 통과했으나, 중간에 localStorage 정보가 바뀐 경우
     resetMsg.textContent = "사용자 정보를 찾을 수 없습니다.";
     resetMsg.className = "error-message";
   }
