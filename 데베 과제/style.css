@@ -835,3 +835,185 @@ main.container {
 .filter-buttons button:hover {
   opacity: 0.9;
 }
+/* ------------------------------
+    로그인, 회원가입, 모달 전용 스타일
+    (style.css의 다른 스타일과 충돌하지 않도록 수정됨)
+   ------------------------------ */
+
+/* 로그인 페이지 상단 바 (로고 중앙 정렬) */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  color: #333;
+  padding: 12px 20px;
+  border-bottom: 1px solid #e0e0e0;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* .logo 스타일은 기존 style.css의 .logo a가 적용되므로 중복 제거함.
+  body 스타일도 기존 style.css에 있으므로 제거함.
+*/
+
+/* [핵심] 
+  .container 대신 .login-container를 사용
+*/
+.login-container {
+  max-width: 400px;
+  margin: 120px auto 60px auto;
+  background: #fff;
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* [핵심] 
+  h2, label, input, button 태그에 직접 스타일을 주지 않고
+  .login-container와 .modal-content 내부로 범위를 한정하여
+  다른 페이지의 폼/버튼이 깨지는 것을 방지함.
+*/
+.login-container h2,
+.modal-content h2 {
+  text-align: center;
+  color: #2c3e50;
+  /* 기존 style.css의 h2 스타일(밑줄)을 무효화 */
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.login-container label,
+.modal-content label {
+  display: block;
+  margin: 15px 0 5px;
+  font-weight: 500;
+  color: #333;
+}
+
+.login-container input[type="text"],
+.login-container input[type="password"],
+.login-container input[type="email"],
+.modal-content input[type="text"],
+.modal-content input[type="password"],
+.modal-content input[type="email"] {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-size: 15px;
+}
+
+.login-container button,
+.modal-content button {
+  width: 100%;
+  padding: 12px;
+  background-color: #2b6cb0;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.3s;
+}
+
+.login-container button:hover,
+.modal-content button:hover {
+  background-color: #22588f;
+}
+
+/* 이하 스타일은 고유한 클래스 이름을 사용하므로
+  충돌 위험이 없어 그대로 사용합니다.
+*/
+
+/* 폼 하단 토글 (아이디/비번 찾기, 회원가입) */
+.toggle {
+  text-align: center;
+  margin-top: 25px;
+  color: #555;
+  font-size: 15px;
+}
+
+.toggle span,
+.toggle a span {
+  color: #2b6cb0;
+  cursor: pointer;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* 메시지 클래스 (에러, 성공, ID표시) */
+.error-message {
+  color: #e74c3c;
+  text-align: center;
+  margin-top: 15px;
+  font-weight: bold;
+}
+
+.success-message {
+  color: #27ae60;
+  text-align: center;
+  margin-top: 15px;
+  font-weight: bold;
+}
+
+.id-display {
+  color: #2b6cb0;
+  text-align: center;
+  margin-top: 15px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.content-hidden {
+  display: none;
+}
+
+/* 팝업 (모달) 스타일 */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+  padding-top: 60px;
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 10% auto;
+  padding: 30px 40px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 400px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.close-btn {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  text-decoration: none;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+  color: #333;
+  text-decoration: none;
+  cursor: pointer;
+}
