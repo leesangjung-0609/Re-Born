@@ -22,6 +22,9 @@
     <label for="loginPw">비밀번호</label>
     <input type="password" id="loginPw" placeholder="비밀번호 입력">
     <button onclick="login()">로그인</button>
+    
+    <div id="loginMsg" class="error-message content-hidden"></div>
+
     <div class="toggle">
       계정이 없으신가요? <a href="signup.html"><span>회원가입</span></a><br>
       아이디/비밀번호를 잊으셨나요?
@@ -129,6 +132,8 @@
       const ADMIN_ID = "admin"; // login.html 내에 정의되어 있다고 가정
       const ADMIN_PW = "1234";  // login.html 내에 정의되어 있다고 가정
 
+      const loginMsg = document.getElementById('loginMsg');
+
       // 1. 관리자 계정 확인
       if (id === ADMIN_ID && pw === ADMIN_PW) {
         // ⭐️⭐️⭐️ 핵심: Local Storage에 로그인 상태와 ID 저장 ⭐️⭐️⭐️
@@ -151,7 +156,9 @@
         alert(`환영합니다 ${id}님!`);
         window.location.href = "main.html"; // 메인 페이지로 이동
       } else {
-        alert("아이디 또는 비밀번호가 올바르지 않습니다.");
+        loginMsg.textContent = "아이디 또는 비밀번호가 올바르지 않습니다.";
+        loginMsg.classList.remove('content-hidden');
+        //alert("아이디 또는 비밀번호가 올바르지 않습니다.");
         // 실패 시 혹시 모를 이전 정보 삭제
         localStorage.removeItem('isLoggedIn');
         localStorage.removeItem('loggedInUser');
