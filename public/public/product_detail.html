@@ -72,6 +72,16 @@
   </div>
 </div>
 
+<!-- 1. 🔹 댓글 표시 영역,일단이거 방금 넣은부분 -->
+<section id="commentSection" style="width:80%; margin:40px auto; display:none;">
+  <h3>💬 댓글</h3>
+  <div id="commentList"></div>
+
+  <textarea id="commentInput" placeholder="댓글을 입력하세요" style="width:100%; height:70px; margin-top:10px;"></textarea>
+  <button id="commentSubmitBtn" style="margin-top:10px;">댓글 작성</button>
+</section>
+
+
 <script>
 function openWithdrawPopup() {
   const popupWidth = 500;
@@ -138,14 +148,163 @@ async function loadProduct() {
 // 구매 버튼
 document.getElementById("buyBtn").addEventListener("click", () => {
   alert("구매 요청이 완료되었습니다! 판매자와 채팅을 시작합니다.");
+  
+  // 댓글 영역 보이기
+  const commentSection = document.getElementById("commentSection");
+  commentSection.style.display = "block";
+
+  // 댓글 로드
+  loadCurrentUser().then(loadComments);
 });
 
 document.getElementById("sellerName").addEventListener("click", () => {
   window.location.href = 'seller.html';
 });
-
 // 페이지 로드 시 상품 불러오기
 loadProduct();
+
+
+
+
+
+// 🔹 댓글 관련 JS ,여기 밑에 부분이 전부다 추가한 부분 
+const commentList = document.getElementById("commentList");
+const commentInput = document.getElementById("commentInput");
+const commentSubmitBtn = document.getElementById("commentSubmitBtn");
+
+// 현재 로그인한 사용자 정보를 서버에서 가져오기
+let currentUser = null;
+async function loadCurrentUser() {
+  try {
+    const res = await fetch("/user/current", { credentials: "include" });
+    if (res.ok) {
+      const data = await res.json();
+      currentUser = data.username; // 예: { username: 'hong' }
+    }
+  } catch (err) {
+    console.error("로그인 사용자 정보 불러오기 실패", err);
+  }
+}
+
+// 댓글 불러오기
+async function loadComments() {
+  const params = new URLSearchParams(window.location.search);
+  const productId = params.get("id");
+  if (!productId) return;
+
+  try {
+    const res = await fetch(`/comment/list/${productId}`);
+    const comments = await res.json();
+
+    commentList.innerHTML = ""; // 기존 댓글 초기화
+    comments.forEach(comment => {
+      const div = document.createElement("div");
+      div.classList.add("comment-item");
+      div.style.borderBottom = "1px solid #ddd";
+      div.style.padding = "8px 0";
+
+      div.innerHTML = `
+        <strong>${comment.username}</strong>: 
+        <span class="comment-text">${comment.content}</span>
+      `;
+
+      // 🔹 현재 사용자가 작성한 댓글이면 수정/삭제 버튼 추가
+      if (currentUser && currentUser === comment.username) {
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "수정";
+        editBtn.style.marginLeft = "10px";
+        editBtn.addEventListener("click", () => editComment(comment));
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "삭제";
+        deleteBtn.style.marginLeft = "5px";
+        deleteBtn.addEventListener("click", () => deleteComment(comment.comment_id));
+
+        div.appendChild(editBtn);
+        div.appendChild(deleteBtn);
+      }
+
+      commentList.appendChild(div);
+    });
+
+  } catch (err) {
+    console.error(err);
+    commentList.innerHTML = "댓글을 불러오지 못했습니다.";
+  }
+}
+
+// 댓글 작성
+commentSubmitBtn.addEventListener("click", async () => {
+  const content = commentInput.value.trim();
+  if (!content) return alert("댓글 내용을 입력해주세요.");
+
+  const params = new URLSearchParams(window.location.search);
+  const productId = params.get("id");
+
+  try {
+    const res = await fetch("/comment/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId, content }),
+      credentials: "include"
+    });
+
+    const result = await res.json();
+    if (result.success) {
+      commentInput.value = "";
+      loadComments(); // 댓글 갱신
+    } else {
+      alert(result.message || "댓글 작성 실패");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("댓글 작성 중 오류 발생");
+  }
+});
+
+// 댓글 삭제
+async function deleteComment(commentId) {
+  if (!confirm("정말 삭제하시겠습니까?")) return;
+
+  try {
+    const res = await fetch(`/comment/delete/${commentId}`, {
+      method: "DELETE",
+      credentials: "include"
+    });
+    const result = await res.json();
+    if (result.success) loadComments();
+    else alert(result.message || "삭제 실패");
+  } catch (err) {
+    console.error(err);
+    alert("삭제 중 오류 발생");
+  }
+}
+
+// 댓글 수정
+function editComment(comment) {
+  const newContent = prompt("댓글을 수정하세요:", comment.content);
+  if (!newContent) return;
+
+  fetch(`/comment/update/${comment.comment_id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ content: newContent })
+  })
+    .then(res => res.json())
+    .then(result => {
+      if (result.success) loadComments();
+      else alert(result.message || "수정 실패");
+    })
+    .catch(err => {
+      console.error(err);
+      alert("댓글 수정 중 오류 발생");
+    });
+}
+
+// 페이지 로드 시
+loadCurrentUser().then(loadComments);
+
 </script>
 
 </body>
