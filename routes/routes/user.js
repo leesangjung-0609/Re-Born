@@ -133,16 +133,52 @@ router.post("/check-username", (req, res) => {
 // 📌 현재 로그인 상태 확인 (프론트엔드에서 사용)
 router.get("/current", (req, res) => {
   if (!req.session || !req.session.user) {
-    // 세션이 없거나 user 객체가 없으면 401
     return res.status(401).json({ loggedIn: false });
   }
 
-  // user 테이블 정보를 바탕으로 세션에 저장된 정보를 반환
-  res.json({
-    loggedIn: true,
-    username: req.session.user.username,
-    user_id: req.session.user.user_id
+  const userId = req.session.user.user_id;
+
+  const sql = `
+    SELECT username, status 
+    FROM user 
+    WHERE user_id = ?
+  `;
+
+  db.query(sql, [userId], (err, results) => {
+    if (err) {
+      console.error("현재 로그인 사용자 조회 오류:", err);
+      return res.status(500).send("서버 오류");
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ loggedIn: false });
+    }
+
+    const user = results[0];
+
+    res.json({
+      loggedIn: true,
+      username: user.username,
+      user_id: userId,
+      status: user.status
+    });
   });
 });
 
+router.get("/seller/:sellerId", (req, res) => {
+  const sellerId = req.params.sellerId;
+
+  const sql = `
+    SELECT user_id, username, name, email
+    FROM user
+    WHERE user_id = ?
+  `;
+
+  db.query(sql, [sellerId], (err, results) => {
+    if (err) return res.status(500).send("판매자 조회 실패");
+    if (results.length === 0) return res.status(404).send("판매자를 찾을 수 없습니다.");
+
+    res.json(results[0]);
+  });
+});
 module.exports = router;

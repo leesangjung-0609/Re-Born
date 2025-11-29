@@ -53,8 +53,8 @@ router.post("/add", (req, res, next) => {
 
         // ... 이하 DB 쿼리 코드는 동일 ...
         const sql = `
-            INSERT INTO product (title, price, description, image_url, category, seller_id)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO product (title, price, description, image_url, category, seller_id, status)
+VALUES (?, ?, ?, ?, ?, ?, '판매중')
         `;
         
         db.query(sql, [title, price, description || null, image_url, category || null, userId], (err, result) => {
@@ -129,7 +129,21 @@ router.get("/category/:category", (req, res) => {
     res.json(results);
   });
 });
+router.get("/seller/:sellerId", (req, res) => {
+  const sellerId = req.params.sellerId;
 
+  const sql = `
+    SELECT product_id, title, price, image_url, created_at
+    FROM product
+    WHERE seller_id = ? AND status = '판매중'
+    ORDER BY created_at DESC
+  `;
+
+  db.query(sql, [sellerId], (err, results) => {
+    if (err) return res.status(500).send("판매자 상품 조회 실패");
+    res.json(results);
+  });
+});
 // 상품 상세 조회
 router.get("/:id", (req, res) => {
   const productId = req.params.id;
@@ -155,5 +169,6 @@ router.get("/:id", (req, res) => {
     res.json(results[0]);
   });
 });
+
 
 module.exports = router;
