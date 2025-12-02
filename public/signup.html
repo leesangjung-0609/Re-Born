@@ -60,7 +60,8 @@
 
     input[type="text"],
     input[type="password"],
-    input[type="email"] {
+    input[type="email"],
+    input[type="tel"] {
       width: 100%;
       padding: 12px;
       border: 1px solid #ddd;
@@ -124,6 +125,16 @@
       font-weight: 600;
       text-decoration: none;
     }
+
+    .gender-container {
+      display: flex;
+      gap: 20px;
+      margin-top: 10px;
+    }
+
+    .gender-container input[type="radio"] {
+      margin-right: 5px;
+    }
   </style>
 </head>
 
@@ -144,7 +155,7 @@
     <label for="signupPw">비밀번호</label>
     <input type="password" id="signupPw" placeholder="비밀번호 입력">
 
-    <label for="nickname">닉네임</label>
+    <label for="nickname">닉네임 (사용자 이름)</label>
     <input type="text" id="nickname" placeholder="닉네임 입력">
 
     <label for="fullname">이름</label>
@@ -152,6 +163,19 @@
 
     <label for="signupEmail">이메일</label>
     <input type="email" id="signupEmail" placeholder="이메일 입력">
+
+    <label for="phone">전화번호</label>
+    <input type="tel" id="phone" placeholder="전화번호 입력 (- 없이)">
+
+    <label for="birthDate">생년월일</label>
+    <input type="date" id="birthDate">
+
+    <label>성별</label>
+    <div class="gender-container">
+      <label><input type="radio" name="gender" value="male" checked> 남성</label>
+      <label><input type="radio" name="gender" value="female"> 여성</label>
+      <label><input type="radio" name="gender" value="other"> 기타</label>
+    </div>
 
     <button class="signup-btn" onclick="signup()">회원가입</button>
 
@@ -161,18 +185,64 @@
   </div>
 
   <script>
+    function getAge(fullBirthDate) {
+        if (!fullBirthDate) return null; // 값이 없으면 null 반환
+        
+        const birth = new Date(fullBirthDate);
+        const today = new Date();
+        
+        let age = today.getFullYear() - birth.getFullYear();
+
+        // 생일이 지나지 않았으면 나이 -1
+        if (today.getMonth() < birth.getMonth() || 
+            (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        return age;
+    }
+    
+    // getFullBirthDate 함수는 더 이상 필요 없으므로 제거됩니다.
+
     async function signup() {
       const username = document.getElementById('signupId').value;
       const password = document.getElementById('signupPw').value;
       const name = document.getElementById('fullname').value;
       const email = document.getElementById('signupEmail').value;
-      const phone = ""; // 필요하면 input 추가
+      const phone = document.getElementById('phone').value;
+      // ***********************************************
+      // 📌 변경: input type="date"에서 YYYY-MM-DD 값을 바로 가져옴
+      // ***********************************************
+      const fullBirthDate = document.getElementById('birthDate').value; 
+      const gender = document.querySelector('input[name="gender"]:checked').value;
+      
+      
+      // 필수 유효성 검사 강화: 생년월일이 입력되었는지 확인
+      if (!fullBirthDate) {
+        alert("생년월일을 선택해주세요.");
+        return;
+      }
+      
+      const age = getAge(fullBirthDate);
+      
+      if (age === null || age < 0) {
+        alert("유효한 생년월일을 입력해주세요.");
+        return;
+      }
 
       try {
         const res = await fetch("/user/signup", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password, name, email, phone })
+          body: JSON.stringify({ 
+            username, 
+            password, 
+            name, 
+            email, 
+            phone,
+            age,
+            birth: fullBirthDate, // YYYY-MM-DD 형식 그대로 전송
+            gender
+          })
         });
 
         if (!res.ok) {
@@ -194,6 +264,7 @@
     }
 
     function checkId() {
+      // (중복 확인 로직은 동일)
       const id = document.getElementById('signupId').value;
       if (!id) {
         alert("아이디를 입력해주세요!");
