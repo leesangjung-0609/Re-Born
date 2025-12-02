@@ -131,9 +131,16 @@
       });
     }
 
-    document.getElementById('searchInput').addEventListener('input', () => {
+
+    //검색어관련 (부분일치방식 : 검색어가 들어간 단어는 무조건 나옴)
+    // 엔터 키 이벤트 적용(검색어 입력한후에 엔터를 쳐야 검색어관련 나옴)
+    document.getElementById('searchInput').addEventListener('keydown', (event) => {
+      const searchInput = event.target;
       showHideClearButton();
+
+      if (event.key === 'Enter') { 
       applyFilters();
+      }
     });
 
     function applyPriceFilter() { applyFilters(); }
