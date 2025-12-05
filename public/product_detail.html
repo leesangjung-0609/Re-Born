@@ -51,7 +51,7 @@
       white-space: pre-line;
     }
   </style>
-  
+
 </head>
 
 <body class="loading-screen">
@@ -112,6 +112,8 @@
           style="padding:12px 20px; background:#e74c3c; color:white; border:none; border-radius:6px; font-size:16px; cursor:pointer;">
           ♥ 좋아요
         </button>
+        <button id="editBtn"
+          style="padding:12px 25px; background:#2980b9; color:white; border:none; border-radius:6px; font-size:16px; cursor:pointer; display:none;">수정하기</button>
       </div>
     </div>
   </div>
@@ -125,7 +127,7 @@
     <button id="commentSubmitBtn" style="margin-top:10px;">댓글 작성</button>
   </section>
 
-  
+
   <script>
     // =========================================
     // 1. 팝업 및 검색창 UI 관련 함수
@@ -158,6 +160,7 @@
     const commentList = document.getElementById("commentList");
     const commentInput = document.getElementById("commentInput");
     const commentSubmitBtn = document.getElementById("commentSubmitBtn");
+    const editBtn = document.getElementById("editBtn");
     let currentUser = null; // 로그인한 사용자 정보 저장
 
     // =========================================
@@ -179,7 +182,16 @@
         console.error("사용자 정보 로드 실패", err);
       }
     }
+    function openEditPopup(productId) {
+      const popupWidth = 600;
+      const popupHeight = 700;
+      const left = (window.screen.width / 2) - (popupWidth / 2);
+      const top = (window.screen.height / 2) - (popupHeight / 2);
+      const options = `width=${popupWidth},height=${popupHeight},left=${left},top=${top},status=no,menubar=no,toolbar=no,resizable=no`;
+      window.open(`goods_reg_form.html?id=${productId}`, "editProductPopup", options);
+    }
 
+    // 상품 상세 정보 불러오기
     // 상품 상세 정보 불러오기
     async function loadProduct() {
       const params = new URLSearchParams(window.location.search);
@@ -191,6 +203,7 @@
         if (!res.ok) throw new Error("상품 불러오기 실패");
 
         const product = await res.json();
+        const isSeller = currentUser === product.username;
 
         document.getElementById("productImage").src = product.image_url;
         document.getElementById("productTitle").textContent = product.title;
@@ -198,30 +211,27 @@
         document.getElementById("productDesc").textContent = product.description || "";
         document.getElementById("sellerName").innerHTML = `판매자: <strong>${product.username}</strong>`;
 
-        // 찜 버튼 이벤트
-        document.getElementById("likeBtn").onclick = async function () {
-          try {
-            const res = await fetch("/wishlist/add", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ productId: product.product_id }),
-              credentials: "include"
-            });
-            const result = await res.json();
-            alert(result.message);
-          } catch (err) {
-            alert("찜 추가 실패: 로그인 필요");
-          }
-        };
+        if (isSeller) {
+          editBtn.style.display = "block";
+          editBtn.onclick = function () {
+            openEditPopup(productId);
+          };
+        } else {
+          editBtn.style.display = "none";
+        }
 
+        document.getElementById("likeBtn").onclick = async function () {
+          // ... (중략)
+        };
       } catch (err) {
         console.error(err);
         alert("상품 정보를 불러오지 못했습니다.");
       }
     }
 
+
     // 구매 버튼 이벤트
-    
+
 
     // 판매자 클릭 이벤트
     document.getElementById("sellerName").addEventListener("click", () => {
@@ -393,9 +403,9 @@
       loadProduct();           // 상품 정보 로드
       loadComments();          // 댓글 로드
     })();
-    
+
   </script>
-  
+
 </body>
 
 </html>

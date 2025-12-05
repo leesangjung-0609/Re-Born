@@ -46,17 +46,41 @@
       width: 200px;
       display: block;
     }
+    .status-container {
+        margin-bottom: 15px;
+        /* 이 두 속성이 한 줄 정렬을 담당합니다 */
+        display: flex; 
+        gap: 20px;
+    }
+    .status-container label {
+        font-weight: normal;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    }
+    .status-container input[type="radio"] {
+        width: auto;
+        margin-right: 5px;
+        margin-bottom: 0;
+    }
   </style>
 </head>
 
 <body class="loading-screen">
   <script src="login_out.js"></script>
-  <h2>새 상품 등록</h2>
+  <h2 id="pageTitle">새 상품 등록</h2>
 
-  <form id="regForm" method="POST" enctype="multipart/form-data">
-    <input type="text" id="name" name="name" placeholder="상품명" required>
-    <textarea id="desc" name="desc" placeholder="상품 설명" required></textarea>
+  <form id="productForm">
+    <input type="hidden" id="productId" name="product_id" value="">
+    <input type="hidden" id="currentImageUrl" name="currentImageUrl" value="">
 
+    <label for="name">상품명</label>
+    <input type="text" id="name" name="title" placeholder="상품명" required>
+
+    <label for="desc">상품 설명</label>
+    <textarea id="desc" name="description" placeholder="상품 설명" required></textarea>
+
+    <label for="category">카테고리</label>
     <input list="categoryList" id="category" name="category" placeholder="카테고리 선택" required>
     <datalist id="categoryList">
       <option value="옷"></option>
@@ -67,40 +91,135 @@
       <option value="기타"></option>
     </datalist>
 
+    <label for="price">가격 (원)</label>
     <input type="number" id="price" name="price" placeholder="가격" required>
 
-    <label for="imgFile">이미지 선택</label>
-    <input type="file" id="imgFile" name="productImage" accept="image/*" required>
+    <label>상품 상태</label>
+    <div class="status-container">
+      <label><input type="radio" name="status" value="판매중" checked> 판매중</label>
+      <label><input type="radio" name="status" value="예약중"> 예약중</label>
+      <label><input type="radio" name="status" value="판매완료"> 판매완료</label>
+    </div>
 
-    <button type="submit">등록하기</button>
+    <label for="imgFile">상품 이미지</label>
+    <input type="file" id="imgFile" name="productImage" accept="image/*">
+    <img id="productImagePreview" src="https://via.placeholder.com/300" style="display:none;">
+
+    <button type="submit" id="submitBtn">등록하기</button>
   </form>
 
-
   <script>
-    document.getElementById("regForm").addEventListener("submit", async function (e) {
+    const productForm = document.getElementById("productForm");
+    const pageTitle = document.getElementById("pageTitle");
+    const submitBtn = document.getElementById("submitBtn");
+    const titleInput = document.getElementById("name");
+    const descInput = document.getElementById("desc");
+    const categoryInput = document.getElementById("category");
+    const priceInput = document.getElementById("price");
+    const statusRadios = document.querySelectorAll('input[name="status"]');
+    const imgFileInput = document.getElementById("imgFile");
+    const imagePreview = document.getElementById("productImagePreview");
+    const productIdHidden = document.getElementById("productId");
+    const currentImageUrlHidden = document.getElementById("currentImageUrl");
+
+    let isEditMode = false;
+    let currentProductId = null;
+
+    async function loadProductForEdit() {
+      const params = new URLSearchParams(window.location.search);
+      const productId = params.get("id");
+
+      if (!productId) {
+        pageTitle.textContent = "새 상품 등록";
+        submitBtn.textContent = "등록하기";
+        isEditMode = false;
+        imagePreview.style.display = 'none';
+        imgFileInput.required = true;
+        return;
+      }
+
+      currentProductId = productId;
+      isEditMode = true;
+      pageTitle.textContent = "상품 수정";
+      submitBtn.textContent = "수정 완료";
+      productIdHidden.value = productId;
+      imgFileInput.required = false;
+
+      try {
+        const res = await fetch(`/product/${productId}`, { credentials: "include" });
+        if (!res.ok) throw new Error("상품 정보 로드 실패");
+
+        const product = await res.json();
+
+        titleInput.value = product.title;
+        descInput.value = product.description || "";
+        categoryInput.value = product.category || "";
+        priceInput.value = product.price;
+
+        for (const radio of statusRadios) {
+          if (radio.value === product.status) {
+            radio.checked = true;
+            break;
+          }
+        }
+
+      } catch (err) {
+        console.error("상품 로드 오류:", err);
+        alert("상품 정보를 불러오지 못했습니다.");
+        window.close();
+      }
+    }
+
+    productForm.addEventListener("submit", async function (e) {
       e.preventDefault();
 
-      const formData = new FormData();
+      const method = isEditMode ? "PUT" : "POST";
+      const url = isEditMode ? "/product/update" : "/product/add";
+      const formData = new FormData(productForm);
 
-      formData.append("title", document.getElementById("name").value);
-      formData.append("description", document.getElementById("desc").value);
-      formData.append("category", document.getElementById("category").value);
-      formData.append("price", document.getElementById("price").value);
+      if (!isEditMode) formData.delete("currentImageUrl");
 
-      // ⭐ 파일 포함
-      const file = document.getElementById("imgFile").files[0];
-      if (file) formData.append("productImage", file);
+      try {
+        const res = await fetch(url, { method, body: formData, credentials: "include" });
+        const result = await res.json();
 
-      const res = await fetch("/product/add", {
-        method: "POST",
-        body: formData,  // ❌ JSON 아님 → multipart/form-data 
-      });
-
-      const result = await res.json();
-      alert(result.message);
-      window.close();
+        if (res.ok) {
+          alert(result.message || (isEditMode ? "상품이 수정되었습니다!" : "상품이 등록되었습니다!"));
+          if (window.opener && typeof window.opener.loadMyProducts === "function") {
+            window.opener.loadMyProducts();
+          }
+          window.close();
+        } else {
+          alert(result.message || (isEditMode ? "상품 수정 실패" : "상품 등록 실패"));
+        }
+      } catch (err) {
+        console.error(err);
+        alert("서버 통신 오류가 발생했습니다.");
+      }
     });
+
+    imgFileInput.addEventListener("change", function (e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          imagePreview.src = e.target.result;
+          imagePreview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      } else if (isEditMode && currentImageUrlHidden.value) {
+        imagePreview.src = currentImageUrlHidden.value;
+        imagePreview.style.display = 'block';
+      } else {
+        imagePreview.style.display = 'none';
+        imagePreview.src = "https://via.placeholder.com/300";
+      }
+    });
+
+    loadProductForEdit();
   </script>
+</body>
+
 
 
 </body>
