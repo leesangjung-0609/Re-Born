@@ -14,7 +14,6 @@ if not exist "server.js" (
     exit
 )
 
-:: 3. 4초 뒤 ngrok 실행 예약
 :: (중요: localhost 대신 127.0.0.1을 강제로 써서 연결 거부 오류 방지)
 start "" cmd /c "timeout /t 1 >nul & start ngrok http 127.0.0.1:3000"
 
@@ -24,3 +23,4 @@ node server.js
 
 :: 5. 서버가 꺼지거나 에러가 나면 창을 바로 닫지 않음
 pause
+
