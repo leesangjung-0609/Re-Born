@@ -3,177 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <title>출석부 PDF 생성</title>
-
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        table {
-            width: 90%;
-            border-collapse: collapse;
-            margin-top: 20px;
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+            margin: 0;
+            padding: 40px 20px;
+            color: #333;
         }
-
-        th, td {
-            border: 1px solid #555;
-            padding: 8px;
-            text-align: center;
-        }
-
-        th {
-            cursor: pointer;
-            background-color: #eee;
-        }
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 40px; font-size: 2em; letter-spacing: 1px; }
+        form { max-width: 750px; margin: 0 auto 40px auto; background-color: #fff; padding: 25px 35px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); transition: transform 0.3s; }
+        form:hover { transform: translateY(-3px); }
+        label { font-weight: 700; margin-right: 10px; }
+        select { padding: 8px 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 15px; transition: border 0.3s, box-shadow 0.3s; }
+        select:focus { outline: none; border-color: #3498db; box-shadow: 0 0 8px rgba(52,152,219,0.3); }
+        button { padding: 10px 22px; margin-top: 20px; margin-right: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 14px; transition: all 0.3s; display: inline-flex; align-items: center; gap: 6px; }
+        #previewBtn { background-color: #3498db; color: #fff; }
+        #previewBtn:hover { background-color: #2980b9; transform: translateY(-2px); }
+        button[type="submit"] { background-color: #2ecc71; color: #fff; }
+        button[type="submit"]:hover { background-color: #27ae60; transform: translateY(-2px); }
+        #previewArea { max-width: 900px; margin: 0 auto; }
+        table { width: 100%; border-collapse: collapse; border-radius: 12px; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.08); font-size: 14px; }
+        th, td { padding: 14px 16px; text-align: center; transition: background 0.3s; }
+        th { background: linear-gradient(90deg, #3498db, #2980b9); color: #fff; font-weight: 700; cursor: pointer; user-select: none; }
+        th:hover { background: linear-gradient(90deg, #2980b9, #3498db); }
+        tr:nth-child(even) { background-color: #f7f9fc; }
+        tr:nth-child(odd) { background-color: #ffffff; }
+        tr:hover { background-color: #d6eaf8; }
+        @media (max-width: 768px) { table, th, td { font-size: 13px; } button { padding: 8px 16px; } }
+        @media (max-width: 480px) { h1 { font-size: 1.5em; } form { padding: 20px 15px; } table { font-size: 12px; } }
     </style>
 </head>
-
 <body>
-<h1>출석부 생성 (미리보기 & 정렬 적용)</h1>
+
+<h1>출석부 생성</h1>
 
 <form method="POST">
-    <label>과목(Section 선택):</label>
-    <select id="section_select" required>
-        <option value="">-- 선택 --</option>
-        {% for s in sections %}
-        <option value="{{ s[0] }}|{{ s[2] }}|{{ s[3] }}|{{ s[4] }}">
-            {{ s[1] }} | Sec {{ s[2] }} | {{ s[3] }} | {{ s[4] }}
-        </option>
+    <!-- 학과 선택 -->
+    <label>학과 필터:</label>
+    <select id="dept_filter">
+        <option value="">-- 전체 --</option>
+        {% for dept in sections|map(attribute=7)|unique %}
+            <option value="{{ dept }}">{{ dept }}</option>
         {% endfor %}
     </select>
 
+    <br><br>
+    <!-- 과목 선택 -->
+    <label>과목 선택:</label>
+    <select id="course_select">
+        <option value="">-- 선택 --</option>
+    </select>
+
+    <br><br>
+    <!-- Section 선택 -->
+    <label>Section 선택:</label>
+    <select id="section_select" required>
+        <option value="">-- 선택 --</option>
+    </select>
+
+    <!-- hidden inputs -->
     <input type="hidden" name="course_id" id="course_id">
     <input type="hidden" name="sec_id" id="sec_id">
     <input type="hidden" name="semester" id="semester">
     <input type="hidden" name="year" id="year">
-
-    <!-- 정렬된 students용 JSON -->
     <input type="hidden" name="students_json" id="students_json">
 
     <br><br>
-    <button type="button" id="previewBtn">미리보기</button>
-    <button type="submit">PDF 생성</button>
+    <button type="button" id="previewBtn">👁️ 미리보기</button>
+    <button type="submit">📄 PDF 생성</button>
 </form>
 
-<!-- 미리보기 영역 -->
 <div id="previewArea"></div>
 
+<!-- sections 데이터 -->
+<script id="sections-data" type="application/json">
+    {{ sections | tojson | safe }}
+</script>
+
 <script>
+    const allSections = JSON.parse(document.getElementById('sections-data').textContent);
 
-// ------------------------------
-// Section 선택 → hidden input에 값 넣기
-// ------------------------------
-const select = document.getElementById('section_select');
-select.addEventListener('change', function() {
-    const [course_id, sec_id, semester, year] = this.value.split('|');
-    document.getElementById('course_id').value = course_id;
-    document.getElementById('sec_id').value = sec_id;
-    document.getElementById('semester').value = semester;
-    document.getElementById('year').value = year;
-});
+    const deptFilter = document.getElementById('dept_filter');
+    const courseSelect = document.getElementById('course_select');
+    const sectionSelect = document.getElementById('section_select');
 
-// ------------------------------
-// 미리보기 버튼 클릭 → 서버에서 학생 받아오기
-// ------------------------------
-document.getElementById("previewBtn").addEventListener("click", async () => {
+    let filteredSections = [];
 
-    if (!select.value) {
-        alert("먼저 Section을 선택하세요.");
-        return;
-    }
+    // 1. 학과 선택
+    deptFilter.addEventListener('change', () => {
+        const dept = deptFilter.value;
+        courseSelect.innerHTML = '<option value="">-- 선택 --</option>';
+        sectionSelect.innerHTML = '<option value="">-- 선택 --</option>';
 
-    const [course_id, sec_id, semester, year] = select.value.split('|');
+        filteredSections = allSections.filter(s => !dept || s[7] === dept);
 
-    const res = await fetch("/preview", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({course_id, sec_id, semester, year})
+        // 과목 중복 제거 후 과목 옵션 생성
+        const courses = [...new Set(filteredSections.map(s => s[1]))];
+        courses.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c;
+            opt.text = c;
+            courseSelect.add(opt);
+        });
     });
 
-    const students = await res.json();
+    // 2. 과목 선택 시 Section 옵션 생성
+    courseSelect.addEventListener('change', () => {
+        const courseName = courseSelect.value;
+        sectionSelect.innerHTML = '<option value="">-- 선택 --</option>';
 
-    if (!students.length) {
-        document.getElementById("previewArea").innerHTML = "<p>수강 학생이 없습니다.</p>";
-        return;
-    }
+        if (!courseName) return;
 
-    renderPreviewTable(students);
-});
+        const sectionsForCourse = filteredSections.filter(s => s[1] === courseName);
+        sectionsForCourse.forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = `${s[0]}|${s[2]}|${s[3]}|${s[4]}`;
+            opt.text = `Sec ${s[2]} | ${s[3]} | ${s[4]} | ${s[7]}`;
+            opt.dataset.dept = s[7];
+            sectionSelect.add(opt);
+        });
+    });
 
-// ------------------------------
-// 미리보기 테이블 렌더링
-// ------------------------------
-let currentStudents = [];
+    // 3. Section 선택 시 hidden input 채우기
+    sectionSelect.addEventListener('change', function() {
+        const [course_id, sec_id, semester, year] = this.value.split('|');
+        document.getElementById('course_id').value = course_id;
+        document.getElementById('sec_id').value = sec_id;
+        document.getElementById('semester').value = semester;
+        document.getElementById('year').value = year;
+    });
 
-function renderPreviewTable(students) {
-    currentStudents = students; // 정렬용
+    // -----------------------------
+    // 미리보기 기능
+    // -----------------------------
+    let currentStudents = [];
+    let sortDirection = true;
 
-    let html = `
-        <table id="previewTable">
-            <thead>
-                <tr>
-                    <th onclick="sortTable(0)">학번</th>
-                    <th onclick="sortTable(1)">이름</th>
-                    <th onclick="sortTable(2)">학과</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-
-    for (let stu of students) {
-        html += `
-            <tr>
-                <td>${stu[0]}</td>
-                <td>${stu[1]}</td>
-                <td>${stu[2]}</td>
-            </tr>
-        `;
-    }
-
-    html += "</tbody></table>";
-
-    document.getElementById("previewArea").innerHTML = html;
-}
-
-// ------------------------------
-// 정렬 기능
-// ------------------------------
-let sortDirection = true;
-
-function sortTable(colIndex) {
-
-    currentStudents.sort((a, b) => {
-
-        // 학번(colIndex=0)은 숫자 정렬
-        if (colIndex === 0) {
-            return sortDirection ? Number(a[0]) - Number(b[0]) 
-                                 : Number(b[0]) - Number(a[0]);
+    document.getElementById("previewBtn").addEventListener("click", async () => {
+        if (!sectionSelect.value) { alert("먼저 Section을 선택하세요."); return; }
+        const [course_id, sec_id, semester, year] = sectionSelect.value.split('|');
+        const res = await fetch("/preview", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({course_id, sec_id, semester, year})
+        });
+        const students = await res.json();
+        if (!students.length) {
+            document.getElementById("previewArea").innerHTML = "<p>수강 학생이 없습니다.</p>";
+            return;
         }
-
-        // 이름 / 학과는 문자열 정렬
-        if (a[colIndex] < b[colIndex]) return sortDirection ? -1 : 1;
-        if (a[colIndex] > b[colIndex]) return sortDirection ? 1 : -1;
-        return 0;
+        renderPreviewTable(students);
     });
 
-    sortDirection = !sortDirection;
-    renderPreviewTable(currentStudents);
-}
+    function renderPreviewTable(students) {
+        currentStudents = students;
+        let html = `
+            <table id="previewTable">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable(0)">학번</th>
+                        <th onclick="sortTable(1)">이름</th>
+                        <th onclick="sortTable(2)">학과</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        for (let stu of students) {
+            html += `<tr><td>${stu[0]}</td><td>${stu[1]}</td><td>${stu[2]}</td></tr>`;
+        }
+        html += "</tbody></table>";
+        document.getElementById("previewArea").innerHTML = html;
+    }
 
+    function sortTable(colIndex) {
+        currentStudents.sort((a, b) => {
+            if (colIndex === 0) return sortDirection ? Number(a[0]) - Number(b[0]) : Number(b[0]) - Number(a[0]);
+            if (a[colIndex] < b[colIndex]) return sortDirection ? -1 : 1;
+            if (a[colIndex] > b[colIndex]) return sortDirection ? 1 : -1;
+            return 0;
+        });
+        sortDirection = !sortDirection;
+        renderPreviewTable(currentStudents);
+    }
 
-// ------------------------------
-// PDF 생성 시 정렬된 students_json 넣기
-// ------------------------------
-document.querySelector("form").addEventListener("submit", function() {
-    const rows = document.querySelectorAll("#previewTable tbody tr");
-    let arr = [];
-
-    rows.forEach(r => {
-        arr.push([
-            r.children[0].innerText,
-            r.children[1].innerText,
-            r.children[2].innerText
-        ]);
+    // PDF 생성 전 students_json 세팅
+    document.querySelector("form").addEventListener("submit", function() {
+        const rows = document.querySelectorAll("#previewTable tbody tr");
+        let arr = [];
+        rows.forEach(r => { arr.push([r.children[0].innerText, r.children[1].innerText, r.children[2].innerText]); });
+        document.getElementById("students_json").value = JSON.stringify(arr);
     });
-
-    document.getElementById("students_json").value = JSON.stringify(arr);
-});
 
 </script>
 
