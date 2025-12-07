@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>출석부 PDF 생성</title>
+
+    <style>
+        table {
+            width: 90%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #555;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            cursor: pointer;
+            background-color: #eee;
+        }
+    </style>
+</head>
+
+<body>
+<h1>출석부 생성 (미리보기 & 정렬 적용)</h1>
+
+<form method="POST">
+    <label>과목(Section 선택):</label>
+    <select id="section_select" required>
+        <option value="">-- 선택 --</option>
+        {% for s in sections %}
+        <option value="{{ s[0] }}|{{ s[2] }}|{{ s[3] }}|{{ s[4] }}">
+            {{ s[1] }} | Sec {{ s[2] }} | {{ s[3] }} | {{ s[4] }}
+        </option>
+        {% endfor %}
+    </select>
+
+    <input type="hidden" name="course_id" id="course_id">
+    <input type="hidden" name="sec_id" id="sec_id">
+    <input type="hidden" name="semester" id="semester">
+    <input type="hidden" name="year" id="year">
+
+    <!-- 정렬된 students용 JSON -->
+    <input type="hidden" name="students_json" id="students_json">
+
+    <br><br>
+    <button type="button" id="previewBtn">미리보기</button>
+    <button type="submit">PDF 생성</button>
+</form>
+
+<!-- 미리보기 영역 -->
+<div id="previewArea"></div>
+
+<script>
+
+// ------------------------------
+// Section 선택 → hidden input에 값 넣기
+// ------------------------------
+const select = document.getElementById('section_select');
+select.addEventListener('change', function() {
+    const [course_id, sec_id, semester, year] = this.value.split('|');
+    document.getElementById('course_id').value = course_id;
+    document.getElementById('sec_id').value = sec_id;
+    document.getElementById('semester').value = semester;
+    document.getElementById('year').value = year;
+});
+
+// ------------------------------
+// 미리보기 버튼 클릭 → 서버에서 학생 받아오기
+// ------------------------------
+document.getElementById("previewBtn").addEventListener("click", async () => {
+
+    if (!select.value) {
+        alert("먼저 Section을 선택하세요.");
+        return;
+    }
+
+    const [course_id, sec_id, semester, year] = select.value.split('|');
+
+    const res = await fetch("/preview", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({course_id, sec_id, semester, year})
+    });
+
+    const students = await res.json();
+
+    if (!students.length) {
+        document.getElementById("previewArea").innerHTML = "<p>수강 학생이 없습니다.</p>";
+        return;
+    }
+
+    renderPreviewTable(students);
+});
+
+// ------------------------------
+// 미리보기 테이블 렌더링
+// ------------------------------
+let currentStudents = [];
+
+function renderPreviewTable(students) {
+    currentStudents = students; // 정렬용
+
+    let html = `
+        <table id="previewTable">
+            <thead>
+                <tr>
+                    <th onclick="sortTable(0)">학번</th>
+                    <th onclick="sortTable(1)">이름</th>
+                    <th onclick="sortTable(2)">학과</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    for (let stu of students) {
+        html += `
+            <tr>
+                <td>${stu[0]}</td>
+                <td>${stu[1]}</td>
+                <td>${stu[2]}</td>
+            </tr>
+        `;
+    }
+
+    html += "</tbody></table>";
+
+    document.getElementById("previewArea").innerHTML = html;
+}
+
+// ------------------------------
+// 정렬 기능
+// ------------------------------
+let sortDirection = true;
+
+function sortTable(colIndex) {
+
+    currentStudents.sort((a, b) => {
+
+        // 학번(colIndex=0)은 숫자 정렬
+        if (colIndex === 0) {
+            return sortDirection ? Number(a[0]) - Number(b[0]) 
+                                 : Number(b[0]) - Number(a[0]);
+        }
+
+        // 이름 / 학과는 문자열 정렬
+        if (a[colIndex] < b[colIndex]) return sortDirection ? -1 : 1;
+        if (a[colIndex] > b[colIndex]) return sortDirection ? 1 : -1;
+        return 0;
+    });
+
+    sortDirection = !sortDirection;
+    renderPreviewTable(currentStudents);
+}
+
+
+// ------------------------------
+// PDF 생성 시 정렬된 students_json 넣기
+// ------------------------------
+document.querySelector("form").addEventListener("submit", function() {
+    const rows = document.querySelectorAll("#previewTable tbody tr");
+    let arr = [];
+
+    rows.forEach(r => {
+        arr.push([
+            r.children[0].innerText,
+            r.children[1].innerText,
+            r.children[2].innerText
+        ]);
+    });
+
+    document.getElementById("students_json").value = JSON.stringify(arr);
+});
+
+</script>
+
+</body>
+</html>
