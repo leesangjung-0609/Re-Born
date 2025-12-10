@@ -29,6 +29,7 @@ router.get("/received", isAuthenticated, (req, res) => {
             r.content, 
             p.title AS product_title,
             p.product_id,
+            p.image_url,
             u.username AS reviewer_name,
             r.created_at
         FROM review r

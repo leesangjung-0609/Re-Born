@@ -73,39 +73,70 @@ router.get("/list", (req, res) => {
 });
 
 // 찜 삭제
-router.delete("/remove/:wishlistId", (req, res) => {
-  const userId = req.session.user ? req.session.user.user_id : null;
-  // ⭐⭐ 수정: URL 파라미터에서 wishlistId를 가져옵니다.
-  const wishlistId = req.params.wishlistId;
+// 찜 삭제 (통합) - /wishlist/remove/:wishlistId (우선) 또는 /wishlist/remove (body.productId) 지원
+router.delete("/remove", (req, res) => {
+  const userId = req.session.user?.user_id;
+  const { productId } = req.body;
 
   if (!userId) {
-    return res.status(401).json({ error: "로그인 필요" });
+    return res.status(401).json({ message: "로그인 필요" });
   }
 
   const sql = `
     UPDATE wishlist
     SET Del_yn = 1
-    -- ⭐⭐ 수정: product_id 대신 wishlist_id를 기준으로 삭제합니다.
-    WHERE wishlist_id = ? AND user_id = ? AND Del_yn = 0
+    WHERE product_id = ? AND user_id = ? AND Del_yn = 0
   `;
 
-  // ⭐⭐ 수정: 쿼리에 wishlistId를 전달합니다.
-  db.query(sql, [wishlistId, userId], (err, result) => {
+  db.query(sql, [productId, userId], (err, result) => {
     if (err) {
-      console.error("찜 삭제 DB 오류:", err);
-      return res.status(500).json({ error: err.message });
+      console.error(err);
+      return res.status(500).json({
+        success: false,
+        message: "DB 오류 발생"
+      });
     }
 
     if (result.affectedRows === 0) {
       return res.json({
         success: false,
-        message: "찜 목록에서 찾을 수 없거나 이미 삭제되었습니다.",
+        message: "이미 찜 해제된 상품입니다."
       });
     }
 
-    res.json({ success: true, message: "찜 삭제 완료" });
+    res.json({
+      success: true,
+      message: "찜 해제 완료"
+    });
   });
 });
+
+
+// ✅ 2. wishlistId 기준 삭제 (마이페이지)
+router.delete("/remove/:wishlistId", (req, res) => {
+  const userId = req.session.user?.user_id;
+  const { wishlistId } = req.params;
+
+  if (!userId) {
+    return res.status(401).json({ message: "로그인 필요" });
+  }
+
+  const sql = `
+    UPDATE wishlist
+    SET del_yn = 1
+    WHERE wishlist_id = ? AND user_id = ? AND del_yn = 0
+  `;
+
+  db.query(sql, [wishlistId, userId], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ success: false });
+    }
+
+    res.json({ success: result.affectedRows > 0 });
+  });
+});
+
 
 
 // 찜 여부 확인
