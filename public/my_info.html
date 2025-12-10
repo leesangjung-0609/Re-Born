@@ -86,7 +86,7 @@
       </div>
 
       <div class="button-container">
-        <a href="my_info_edit.html" class="btn btn-primary">정보 수정하기</a>
+        <a href="javascript:void(0);" onclick="openEditPopup()" class="btn btn-primary">정보 수정하기</a>
       </div>
     </section>
 
@@ -117,23 +117,23 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-    // 1. 사용자 정보 로드 및 표시
-    loadUserInfo();
+      // 1. 사용자 정보 로드 및 표시
+      loadUserInfo();
 
-    // 2. 찜 목록 가져오기
-    loadDataAndRender('/wishlist/list', 'wishlist-display', 'wishlist');
+      // 2. 찜 목록 가져오기
+      loadDataAndRender('/wishlist/list', 'wishlist-display', 'wishlist');
 
-    // 3. 판매중 목록 가져오기
-    loadDataAndRender('/product/selling/active', 'selling-list', 'selling');
+      // 3. 판매중 목록 가져오기
+      loadDataAndRender('/product/selling/active', 'selling-list', 'selling');
 
-    // 4. 판매 완료 목록 가져오기 (라우터 구현 완료)
-    loadDataAndRender('/product/sold', 'sales-list', 'sold');
+      // 4. 판매 완료 목록 가져오기 (라우터 구현 완료)
+      loadDataAndRender('/product/sold', 'sales-list', 'sold');
 
-    // 5. 구매 목록 가져오기 (라우터 구현 완료)
-    loadDataAndRender('/product/bought', 'purchase-list', 'bought');
-});
+      // 5. 구매 목록 가져오기 (라우터 구현 완료)
+      loadDataAndRender('/product/bought', 'purchase-list', 'bought');
+    });
   </script>
-  
+
 
 </body>
 

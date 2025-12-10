@@ -6,20 +6,19 @@
 /**
  * 반복되는 카드 HTML 코드를 생성해줍니다.
  */
-
-    // [추가됨] 정보 수정 팝업 열기 함수
 function openEditPopup() {
-      const popupWidth = 550;
-      const popupHeight = 850;
-
-      const left = (window.screen.width / 2) - (popupWidth / 2);
-      const top = (window.screen.height / 2) - (popupHeight / 2);
-
-      const options = `width=${popupWidth},height=${popupHeight},left=${left},top=${top},status=no,menubar=no,toolbar=no,resizable=no,scrollbars=yes`;
-
-      window.open("my_info_edit.html", "editPopup", options);
-    }
-
+    const popupWidth = 500;
+    const popupHeight = 850; // 입력 필드가 많으므로 높이를 넉넉하게 잡음
+    
+    // 화면 중앙에 위치 계산
+    const left = (window.screen.width / 2) - (popupWidth / 2);
+    const top = (window.screen.height / 2) - (popupHeight / 2);
+    
+    // 팝업 옵션: 크기 고정(resizable=no), 스크롤 가능(scrollbars=yes)
+    const options = `width=${popupWidth},height=${popupHeight},left=${left},top=${top},status=no,menubar=no,toolbar=no,resizable=no,scrollbars=yes`;
+    
+    window.open("my_info_edit.html", "editPopup", options);
+  }
 function createCardHTML(item, type) {
     let dateLabel = "등록일";
     let linkId = item.product_id || item.id;
@@ -279,6 +278,5 @@ async function loadUserInfo() {
 // =========================================
 // 6. 초기화 및 실행
 // =========================================
-
 
 
