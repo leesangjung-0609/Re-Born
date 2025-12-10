@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>후기 작성 - Re:Born</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #f3f7ff;
+            font-family: "Noto Sans KR", sans-serif;
+        }
+
+        /* 상단 네비처럼 파란색 */
+        .header {
+            width: 100%;
+            background-color: #3a86ff;
+            color: white;
+            padding: 18px;
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 520px;
+            background: #fff;
+            margin: 30px auto;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+
+        .info-box {
+            background: #eef4ff;
+            border-left: 5px solid #3a86ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .label {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #1f3c88;
+            margin-bottom: 8px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            font-size: 15px;
+            border: 1px solid #c8d6ff;
+            border-radius: 8px;
+            outline: none;
+            box-sizing: border-box;
+            height: 150px;
+            resize: none;
+        }
+
+        textarea:focus {
+            border: 1.5px solid #3a86ff;
+            box-shadow: 0 0 6px rgba(58, 134, 255, 0.4);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 10px;
+            font-size: 17px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 18px;
+            transition: 0.15s;
+            color: white;
+        }
+
+        .btn-submit {
+            background-color: #3a86ff;
+        }
+        .btn-submit:hover {
+            background-color: #2b6bd6;
+        }
+
+        .btn-back {
+            background-color: #495057;
+        }
+        .btn-back:hover {
+            background-color: #3b444b;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">후기 작성</div>
+
+<div class="container">
+
+    <div class="info-box">
+        <p><strong>상품명:</strong> <span id="productTitle"></span></p>
+        <p><strong>판매자:</strong> <span id="sellerName"></span></p>
+    </div>
+
+    <div class="label">후기 내용</div>
+    <textarea id="content" placeholder="상품을 사용한 후기를 자유롭게 작성해주세요."></textarea>
+
+    <button class="btn btn-submit" onclick="submitReview()">후기 등록</button>
+    <button class="btn btn-back" onclick="history.back()">뒤로가기</button>
+
+</div>
+
+<script>
+    // URL 파라미터 읽기
+    const params = new URLSearchParams(window.location.search);
+    const productId = params.get("productId");
+    const sellerNameParam = params.get("seller");
+    const productTitleParam = params.get("title");
+
+    document.getElementById("productTitle").innerText = productTitleParam || "상품명 정보 없음";
+    document.getElementById("sellerName").innerText = sellerNameParam || "판매자 정보 없음";
+
+    function submitReview() {
+        const content = document.getElementById("content").value.trim();
+
+        if (!content) {
+            alert("후기 내용을 입력해주세요!");
+            return;
+        }
+
+        fetch("/review/add", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                productId: productId,
+                content: content
+            })
+        })
+        .then((res) => res.json())
+        .then((data) => {
+            alert("후기 등록 완료!");
+            window.location.href = `product_detail.html?id=${productId}`;
+        })
+        .catch((err) => {
+            console.error(err);
+            alert("후기 등록 중 오류 발생");
+        });
+    }
+</script>
+
+</body>
+</html>
