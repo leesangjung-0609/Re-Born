@@ -25,6 +25,20 @@ function openEditPopup() {
 
     window.open("my_info_edit.html", "editPopup", options);
 }
+
+function openReviewPopup(productId) {
+    if (!productId) {
+        alert("상품 ID가 유효하지 않습니다.");
+        return;
+    }
+
+    const url = `review_write.html?product_id=${productId}`;
+    const windowName = "ReviewWritePopup";
+    // 후기 작성 팝업 크기 설정 (원하는 크기로 조정 가능)
+    const features = "width=600,height=650,resizable=no,scrollbars=yes";
+
+    window.open(url, windowName, features);
+}
 function createCardHTML(item, type) {
     let dateLabel = "등록일";
     let linkId = item.product_id || item.id;
@@ -52,8 +66,8 @@ function createCardHTML(item, type) {
         buttonHtml = `<button class="btn btn-danger btn-remove-wish" data-id="${item.wishlist_id}">찜 삭제</button>`;
     }
     else if (type === 'bought') {
-        // 구매 내역일 경우 후기 작성 버튼 추가
-        buttonHtml = `<a href="review_write.html?product_id=${linkId}" class="btn btn-primary btn-write-review">후기 작성</a>`;
+        // ⭐ 이전에 a 태그였던 부분을 버튼과 onclick 이벤트로 변경함 ⭐
+        buttonHtml = `<button type="button" class="btn btn-primary btn-write-review" onclick="openReviewPopup(${linkId})">후기 작성</button>`;
     }
     // 판매자/구매자 정보 표시
     let partnerInfo = '';
@@ -131,6 +145,7 @@ function renderList(containerId, dataList, type) {
             button.addEventListener('click', async (e) => {
                 e.preventDefault(); // 링크 이동 방지
                 const wishlistId = e.target.getAttribute('data-id');
+                
                 if (confirm('정말로 찜 목록에서 삭제하시겠습니까?')) {
                     try {
                         const res = await fetch(`/wishlist/remove/${wishlistId}`, {
@@ -284,5 +299,4 @@ async function loadUserInfo() {
 // =========================================
 // 6. 초기화 및 실행
 // =========================================
-
 

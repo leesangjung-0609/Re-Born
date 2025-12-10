@@ -14,7 +14,7 @@
         /* 상단 네비처럼 파란색 */
         .header {
             width: 100%;
-            background-color: #3a86ff;
+            background-color: #a8d0ff;
             color: white;
             padding: 18px;
             font-size: 22px;
@@ -193,7 +193,9 @@
                     // ⭐⭐ [수정] window.opener가 유효한지 확인하여 오류 방지 ⭐⭐
                     if (window.opener && !window.opener.closed) {
                         // 부모 창이 유효하면 '내 후기' 페이지로 이동
-                        window.opener.location.href = "rating.html";
+                        if (typeof window.opener.loadDataAndRender === 'function') {
+                            window.opener.loadDataAndRender('/product/bought', 'purchase-list', 'bought');
+                        }
                     } else {
                         console.warn("부모 창이 닫혔거나 연결이 끊겨 '내 후기' 페이지로 이동할 수 없습니다.");
                     }

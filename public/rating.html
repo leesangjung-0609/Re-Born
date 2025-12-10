@@ -101,16 +101,13 @@
           data.reviews.forEach(review => {
             const listItem = document.createElement('li');
             listItem.classList.add('item-list-item');
-
-            // 상품 상태를 보여주기 위해 상품 이름 앞에 (판매 완료) 등을 표시할지 여부는
-            // 서버에서 product.status를 추가로 가져와야 확실히 구현 가능합니다.
-            // 현재는 간단하게 상품 이름만 표시합니다.
-
-            // review.created_at을 포맷팅하는 로직은 생략하고 단순 출력합니다.
+            
+            
             const formattedDate = new Date(review.created_at).toLocaleDateString('ko-KR');
+            const imageUrl = review.image_url || 'https://via.placeholder.com/80x80.png?text=Item';
 
             listItem.innerHTML = `
-                            <img src="https://via.placeholder.com/80x80.png?text=Item" alt="${review.product_title}">
+                            <img src="${imageUrl}" alt="${review.product_title}">
                             <div class="item-info">
                                 <h4>
                                     <a href="product_detail.html?product_id=${review.product_id}">
