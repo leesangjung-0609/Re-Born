@@ -170,7 +170,7 @@
     const editBtn = document.getElementById("editBtn");
     const markSoldBtn = document.getElementById("markSoldBtn");
     let currentUser = null; // 로그인한 사용자 정보 저장
-
+    let currentSellerId = null;
     // =========================================
     // 3. 사용자 및 상품 정보 로드/처리
     // =========================================
@@ -352,7 +352,10 @@
 
         const product = await res.json();
         const isSeller = currentUser === product.username;
-
+        currentSellerId = product.seller_id; 
+        if (!currentSellerId) {
+            console.warn("경고: 서버 응답에 판매자 ID(product.seller_id) 필드가 없거나 null입니다.");
+        }
         // ⭐⭐⭐ [수정] 판매자/구매자에 따른 버튼 표시 로직 ⭐⭐⭐
         if (product.status === "판매완료") {
           likeBtn.style.display = "none";
@@ -425,9 +428,15 @@
 
     // 판매자 클릭 이벤트
     document.getElementById("sellerName").addEventListener("click", () => {
-      // 실제 seller.html로 이동할 때 쿼리 파라미터로 판매자 ID를 넘겨야 할 수 있습니다.
-      window.location.href = 'seller.html';
+      if (currentSellerId) {
+        // sellerId가 있다면 쿼리 파라미터와 함께 이동
+        window.location.href = `seller.html?sellerId=${currentSellerId}`;
+      } else {
+        // sellerId를 찾지 못했다면 경고
+        alert("판매자 정보를 로드하지 못했습니다.");
+      }
     });
+
 
     // =========================================
     // 4. 댓글 관련 로직

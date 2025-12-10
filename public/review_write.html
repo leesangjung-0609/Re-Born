@@ -182,8 +182,13 @@
                 })
             })
                 .then((res) => {
+                    if (res.status === 409 || res.status === 400) {
+                        // 서버에서 중복 체크 후 이 상태 코드를 반환한다고 가정
+                        return res.json().then(data => {
+                            throw new Error(data.message || "이미 해당 상품에 대한 후기를 작성했습니다.");
+                        });
+                    }
                     if (res.status === 401) throw new Error("로그인 필요");
-                    if (res.status === 400) throw new Error("필수 값 누락 또는 잘못된 요청");
                     if (!res.ok) throw new Error("서버 오류");
                     return res.json();
                 })

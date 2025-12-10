@@ -2,38 +2,33 @@
 <html lang="ko">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Re:Born - 내 평점</title>
-  <link rel="stylesheet" href="style.css" />
-
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body class="loading-screen">
   <script src="login_out.js"></script>
-  <nav>
-    <div class="logo">
-      <a href="main.html">Re:Born</a>
-    </div>
 
+  <nav>
+    <div class="logo"><a href="main.html">Re:Born</a></div>
     <div class="search-bar">
       <div class="search-container">
-        <input type="text" id="searchInput" placeholder="상품명, 카테고리 검색..." oninput="showHideClearButton()" />
-        <button class="clear-btn" id="clearBtn" onclick="clearSearchInput()" style="display: none;">&times;</button>
+        <input type="text" id="searchInput" placeholder="상품명, 카테고리 검색..." oninput="showHideClearButton()">
+        <button class="clear-btn" id="clearBtn" onclick="clearSearchInput()" style="display:none;">&times;</button>
       </div>
     </div>
-
     <ul class="menu">
       <li id="mypageMenu">
         <a href="#">마이 페이지</a>
-        <ul class="submenu" style="left: -30px;">
+        <ul class="submenu" style="left:-30px;">
           <li><a href="my_info.html">내 정보</a></li>
           <li><a href="goods_reg.html">등록한 상품 목록</a></li>
           <li><a href="rating.html">후기</a></li>
           <li><a href="javascript:void(0);" onclick="openWithdrawPopup()">탈퇴하기</a></li>
         </ul>
       </li>
-
       <li id="authMenu">
         <a href="#" id="authLink">로그인/회원가입</a>
         <ul class="submenu" id="authSubmenu">
@@ -43,6 +38,7 @@
       </li>
     </ul>
   </nav>
+
   <main class="container">
     <section id="ratings" class="page-section">
       <h2>내가 받은 후기</h2>
@@ -54,86 +50,57 @@
 
   <script>
     function openWithdrawPopup() {
-      const popupWidth = 500;
-      const popupHeight = 650;
-      const left = (window.screen.width / 2) - (popupWidth / 2);
-      const top = (window.screen.height / 2) - (popupHeight / 2);
-      const options = `width=${popupWidth},height=${popupHeight},left=${left},top=${top},status=no,menubar=no,toolbar=no,resizable=no`;
-      window.open("withdraw.html", "withdrawPopup", options);
+      const w = 500, h = 650;
+      const l = (screen.width - w) / 2, t = (screen.height - h) / 2;
+      window.open("withdraw.html", "withdrawPopup", `width=${w},height=${h},left=${l},top=${t},status=no,menubar=no,toolbar=no,resizable=no`);
     }
     function clearSearchInput() {
-      const searchInput = document.getElementById('searchInput');
-      searchInput.value = '';
-      showHideClearButton();
-      searchInput.focus();
+      const i = document.getElementById("searchInput");
+      i.value = ""; showHideClearButton(); i.focus();
     }
-
     function showHideClearButton() {
-      const searchInput = document.getElementById('searchInput');
-      const clearBtn = document.getElementById('clearBtn');
-
-      if (searchInput.value.length > 0) {
-        clearBtn.style.display = 'block';
-      } else {
-        clearBtn.style.display = 'none';
-      }
+      const i = document.getElementById("searchInput");
+      document.getElementById("clearBtn").style.display = i.value.length ? "block" : "none";
     }
+
     async function loadReviews() {
-      const reviewList = document.getElementById('reviewList');
-      reviewList.innerHTML = '<p>후기 목록을 불러오는 중...</p>';
-
+      const list = document.getElementById("reviewList");
+      list.innerHTML = "<p>후기 목록을 불러오는 중...</p>";
       try {
-        // 1. 서버 API 호출
         const res = await fetch("/review/received", { credentials: "include" });
-
         if (res.status === 401) {
-          reviewList.innerHTML = '<p class="error-message">로그인이 필요합니다. 마이 페이지는 로그인 후 이용해주세요.</p>';
+          list.innerHTML = "<p class='error-message'>로그인이 필요합니다. 마이 페이지는 로그인 후 이용해주세요.</p>";
           return;
         }
         if (!res.ok) throw new Error("서버에서 후기 정보를 불러오지 못했습니다.");
-
         const data = await res.json();
 
-        if (data.reviews && data.reviews.length > 0) {
-          reviewList.innerHTML = ''; // 로딩 메시지 제거
-
-          // 2. 후기 데이터를 순회하며 HTML 생성
-          data.reviews.forEach(review => {
-            const listItem = document.createElement('li');
-            listItem.classList.add('item-list-item');
-            
-            
-            const formattedDate = new Date(review.created_at).toLocaleDateString('ko-KR');
-            const imageUrl = review.image_url || 'https://via.placeholder.com/80x80.png?text=Item';
-
-            listItem.innerHTML = `
-                            <img src="${imageUrl}" alt="${review.product_title}">
-                            <div class="item-info">
-                                <h4>
-                                    <a href="product_detail.html?product_id=${review.product_id}">
-                                        ${review.product_title}
-                                    </a>
-                                </h4>
-                                <p class="review-content">"${review.content}"</p>
-                                <p class="seller">구매자: **${review.reviewer_name}** <span style="font-size: 0.8em; color: #999;">(${formattedDate})</span></p>
-                            </div>
-                        `;
-            reviewList.appendChild(listItem);
+        if (data.reviews && data.reviews.length) {
+          list.innerHTML = "";
+          data.reviews.forEach(r => {
+            const li = document.createElement("li");
+            li.className = "item-list-item";
+            const d = new Date(r.created_at).toLocaleDateString("ko-KR");
+            const img = r.image_url || "https://via.placeholder.com/80x80.png?text=Item";
+            li.innerHTML = `
+          <img src="${img}" alt="${r.product_title}">
+          <div class="item-info">
+            <h4><a href="product_detail.html?product_id=${r.product_id}">${r.product_title}</a></h4>
+            <p class="review-content">"${r.content}"</p>
+            <p class="seller">구매자: **${r.reviewer_name}** <span style="font-size:.8em;color:#999;">(${d})</span></p>
+          </div>`;
+            list.appendChild(li);
           });
         } else {
-          reviewList.innerHTML = '<p>아직 받은 후기가 없습니다.</p>';
+          list.innerHTML = "<p>아직 받은 후기가 없습니다.</p>";
         }
-
-      } catch (error) {
-        console.error("후기 로드 실패:", error);
-        reviewList.innerHTML = `<p class="error-message">후기를 불러오는 중 오류 발생: ${error.message}</p>`;
+      } catch (e) {
+        console.error("후기 로드 실패:", e);
+        list.innerHTML = `<p class="error-message">후기를 불러오는 중 오류 발생: ${e.message}</p>`;
       }
     }
-
-    // 페이지 로드 시 함수 실행
-    document.addEventListener('DOMContentLoaded', loadReviews);
+    document.addEventListener("DOMContentLoaded", loadReviews);
   </script>
-
 </body>
 
 </html>
