@@ -217,10 +217,14 @@ nav {
   font-weight: 600;
 
 }
+
 .category-sidebar li.active {
-  background-color: #2b6cb0; /* h3 글자색과 동일한 진한 파랑 배경 */
-  color: #ffffff;            /* 글자는 흰색으로 반전 */
-  font-weight: 700;          /* 글자 굵게 강조 */
+  background-color: #2b6cb0;
+  /* h3 글자색과 동일한 진한 파랑 배경 */
+  color: #ffffff;
+  /* 글자는 흰색으로 반전 */
+  font-weight: 700;
+  /* 글자 굵게 강조 */
 }
 
 /* ------------------------------
@@ -330,13 +334,17 @@ main.container {
   color: #34495e;
 }
 
-.form-group input[type="text"],
-.form-group input[type="password"] {
+.form-group input:not([type="radio"]) {
   width: 95%;
+  /* 95%로 지정하신 너비 */
   padding: 12px 15px;
+  /* 12px 15px로 지정하신 패딩 */
   border: 1px solid #ddd;
   border-radius: 4px;
+  box-sizing: border-box;
+  /* 너비 계산 기준을 테두리 포함으로 설정 */
   font-size: 15px;
+  /* 15px로 지정하신 글꼴 크기 */
 }
 
 .form-group input[readonly] {
@@ -483,12 +491,17 @@ main.container {
   transform: translateY(-5px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
+
 .product-card img,
 .history-card img {
-  width: 100%;       /* 카드 가로에 맞춤 */
-  height: 180px;     /* 세로 고정 */
-  object-fit: cover; /* 이미지 비율 유지하며 영역 채움 */
+  width: 100%;
+  /* 카드 가로에 맞춤 */
+  height: 180px;
+  /* 세로 고정 */
+  object-fit: cover;
+  /* 이미지 비율 유지하며 영역 채움 */
 }
+
 .product-img {
   width: 100%;
   height: 180px;
@@ -538,60 +551,76 @@ main.container {
 .item-list-item {
   display: flex;
   align-items: center;
-  border: 1px solid #ddd; /* 약간 더 연한 테두리 */
-  padding: 12px 15px; /* 패딩 축소 */
-  margin-bottom: 10px; /* 간격 축소 */
-  border-radius: 8px; /* 둥근 모서리 */
+  border: 1px solid #ddd;
+  /* 약간 더 연한 테두리 */
+  padding: 12px 15px;
+  /* 패딩 축소 */
+  margin-bottom: 10px;
+  /* 간격 축소 */
+  border-radius: 8px;
+  /* 둥근 모서리 */
   background-color: #fff;
   transition: box-shadow 0.2s;
 }
 
 .item-list-item:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); /* 호버 효과 추가 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  /* 호버 효과 추가 */
 }
 
 /* 상품 이미지 */
 .item-list-item img {
-  width: 60px; /* 이미지 크기 축소 (80px -> 60px) */
+  width: 60px;
+  /* 이미지 크기 축소 (80px -> 60px) */
   height: 60px;
   object-fit: cover;
   border-radius: 4px;
-  margin-right: 15px; /* 마진 축소 */
+  margin-right: 15px;
+  /* 마진 축소 */
   flex-shrink: 0;
 }
 
 /* 상품 정보 (제목, 가격, 판매자) */
 .item-info {
   flex-grow: 1;
-  min-width: 0; /* flex overflow 방지 */
+  min-width: 0;
+  /* flex overflow 방지 */
 }
 
 .item-info h4 {
-  margin: 0 0 4px 0; /* 마진 축소 */
+  margin: 0 0 4px 0;
+  /* 마진 축소 */
 }
 
 .item-info h4 a {
-  font-size: 15px; /* 글자 크기 축소 (17px -> 15px) */
+  font-size: 15px;
+  /* 글자 크기 축소 (17px -> 15px) */
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis; /* 제목이 길 경우 ... 처리 */
+  text-overflow: ellipsis;
+  /* 제목이 길 경우 ... 처리 */
 }
 
 .item-info .price {
-  font-size: 14px; /* 가격 크기 축소 (16px -> 14px) */
+  font-size: 14px;
+  /* 가격 크기 축소 (16px -> 14px) */
   margin: 0;
 }
 
 .item-info .seller {
   margin: 4px 0 0 0;
-  font-size: 13px; /* 판매자 크기 축소 (14px -> 13px) */
+  font-size: 13px;
+  /* 판매자 크기 축소 (14px -> 13px) */
 }
 
 /* 찜 삭제 버튼 */
 .item-list-item .btn-danger {
-  margin-left: auto; /* 자동으로 왼쪽 공간 확보 */
-  padding: 8px 14px; /* 버튼 패딩 조정 */
-  font-size: 14px; /* 버튼 글자 크기 축소 */
+  margin-left: auto;
+  /* 자동으로 왼쪽 공간 확보 */
+  padding: 8px 14px;
+  /* 버튼 패딩 조정 */
+  font-size: 14px;
+  /* 버튼 글자 크기 축소 */
   flex-shrink: 0;
 }
 
@@ -650,52 +679,7 @@ main.container {
 /* ------------------------------
        10. 반응형 (모바일)
     ------------------------------ */
-@media screen and (max-width: 768px) {
-  nav {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 12px 20px;
-    height: auto;
-  }
 
-  .search-bar {
-    width: 100%;
-    margin: 10px 0;
-    justify-content: flex-start;
-  }
-
-  .search-container {
-    width: 100%;
-    /* 모바일에서 검색창 꽉 채움 */
-  }
-
-  .search-bar input {
-    width: 100%;
-  }
-
-  .menu {
-    width: 100%;
-    justify-content: flex-start;
-    flex-wrap: wrap;
-    margin: 0;
-    padding: 0;
-  }
-
-  .category-sidebar {
-    display: none;
-  }
-
-  .product-container {
-    margin-left: 0;
-    margin-top: 150px;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  }
-
-  .container,
-  main.container {
-    margin-top: 150px;
-  }
-}
 /* ------------------------------
    판매/구매 내역 카드 스타일 (my_info.html 전용)
 ------------------------------ */
@@ -768,9 +752,12 @@ main.container {
 }
 
 .profile-container {
-  display: flex; /* 👈 핵심: 자식 요소를 가로로 배치 */
-  align-items: center; /* 👈 세로 중앙 정렬 */
-  gap: 24px; /* 👈 이미지와 정보 사이의 간격 */
+  display: flex;
+  /* 👈 핵심: 자식 요소를 가로로 배치 */
+  align-items: center;
+  /* 👈 세로 중앙 정렬 */
+  gap: 24px;
+  /* 👈 이미지와 정보 사이의 간격 */
   padding: 20px;
   background-color: #f9f9f9;
   border-radius: 12px;
@@ -780,9 +767,11 @@ main.container {
 .profile-avatar {
   width: 100px;
   height: 100px;
-  border-radius: 50%; /* 👈 원형 프로필 사진 */
+  border-radius: 50%;
+  /* 👈 원형 프로필 사진 */
   object-fit: cover;
-  flex-shrink: 0; /* 👈 화면이 줄어도 찌그러지지 않게 함 */
+  flex-shrink: 0;
+  /* 👈 화면이 줄어도 찌그러지지 않게 함 */
 }
 
 /* 'info-display'가 남은 공간을 채우도록 함 */
@@ -864,7 +853,8 @@ main.container {
 
 .product-card.wishlist-card img {
   width: 100%;
-  height: 180px; /* 판매중인 상품과 동일한 높이 */
+  height: 180px;
+  /* 판매중인 상품과 동일한 높이 */
   object-fit: cover;
 }
 
@@ -881,7 +871,7 @@ main.container {
 
 /* 로딩 중일 때: 화면 공간은 차지하되 내용은 숨김 */
 body.loading-screen {
-  visibility: hidden; 
+  visibility: hidden;
   opacity: 0;
 }
 
@@ -889,5 +879,9 @@ body.loading-screen {
 body {
   visibility: visible;
   opacity: 1;
-  transition: opacity 0.3s ease-in-out; /* 부드러운 전환 효과 */
+  transition: opacity 0.3s ease-in-out;
+  min-width: auto !important;
+  width: 100% !important;
+  overflow-x: hidden !important;
+  overflow: scroll;    /* 넘치면 스크롤 */
 }
